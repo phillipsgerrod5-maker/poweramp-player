@@ -1,0 +1,790 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-display: "GeneralSans";
+    --font-body: "DM Sans";
+    --font-mono: "JetBrains Mono";
+    --radius: 0.625rem;
+
+    --background: 0.99 0 0;
+    --foreground: 0.15 0 0;
+    --card: 1.0 0 0;
+    --card-foreground: 0.15 0 0;
+    --popover: 1.0 0 0;
+    --popover-foreground: 0.15 0 0;
+
+    --primary: 0.35 0 0;
+    --primary-foreground: 0.98 0 0;
+
+    --secondary: 0.95 0 0;
+    --secondary-foreground: 0.25 0 0;
+    --muted: 0.95 0 0;
+    --muted-foreground: 0.5 0 0;
+
+    --accent: 0.35 0 0;
+    --accent-foreground: 0.98 0 0;
+
+    --destructive: 0.55 0.22 25;
+    --destructive-foreground: 0.98 0 0;
+
+    --border: 0.9 0 0;
+    --input: 0.9 0 0;
+    --ring: 0.35 0 0;
+
+    --chart-1: 0.65 0.22 40;
+    --chart-2: 0.6 0.12 185;
+    --chart-3: 0.4 0.07 227;
+    --chart-4: 0.83 0.19 84;
+    --chart-5: 0.77 0.19 70;
+
+    --sidebar: 0.98 0 0;
+    --sidebar-foreground: 0.15 0 0;
+    --sidebar-primary: 0.35 0 0;
+    --sidebar-primary-foreground: 0.98 0 0;
+    --sidebar-accent: 0.95 0 0;
+    --sidebar-accent-foreground: 0.25 0 0;
+    --sidebar-border: 0.9 0 0;
+    --sidebar-ring: 0.35 0 0;
+  }
+
+  .dark {
+    /* Shiny blue 1080p metallic — oklch(15% 0.03 250) to oklch(8% 0.02 260) */
+    --background: 0.13 0.07 262;
+    --foreground: 0.94 0.02 262;
+    --card: 0.17 0.06 262;
+    --card-foreground: 0.94 0.02 262;
+    --popover: 0.19 0.07 262;
+    --popover-foreground: 0.94 0.02 262;
+
+    /* Electric blue primary — oklch(70% 0.2 240) */
+    --primary: 0.7 0.2 240;
+    --primary-foreground: 0.08 0.04 262;
+
+    --secondary: 0.19 0.06 262;
+    --secondary-foreground: 0.88 0.02 262;
+    --muted: 0.2 0.05 262;
+    --muted-foreground: 0.6 0.04 262;
+
+    /* Purple accent — oklch(65% 0.2 290) */
+    --accent: 0.65 0.2 290;
+    --accent-foreground: 0.08 0 0;
+
+    --destructive: 0.6 0.21 27;
+    --destructive-foreground: 0.92 0 0;
+
+    --success: 0.75 0.18 150;
+    --success-foreground: 0.92 0 0;
+
+    /* Cyan — oklch(80% 0.15 200) */
+    --cyan: 0.8 0.15 200;
+
+    /* Amber — oklch(80% 0.18 75) */
+    --amber: 0.8 0.18 75;
+
+    /* Green — oklch(75% 0.18 150) */
+    --green: 0.75 0.18 150;
+
+    --border: 0.28 0.08 262;
+    --input: 0.28 0.08 262;
+    --ring: 0.7 0.2 240;
+
+    --chart-1: 0.65 0.2 290;
+    --chart-2: 0.7 0.2 240;
+    --chart-3: 0.8 0.15 200;
+    --chart-4: 0.8 0.18 75;
+    --chart-5: 0.75 0.18 150;
+
+    --sidebar: 0.17 0.06 262;
+    --sidebar-foreground: 0.94 0.02 262;
+    --sidebar-primary: 0.7 0.2 240;
+    --sidebar-primary-foreground: 0.08 0.04 262;
+    --sidebar-accent: 0.2 0.05 262;
+    --sidebar-accent-foreground: 0.88 0.02 262;
+    --sidebar-border: 0.28 0.08 262;
+    --sidebar-ring: 0.7 0.2 240;
+
+    --glow-blue: oklch(70% 0.2 240);
+    --glow-purple: oklch(65% 0.2 290);
+    --glow-cyan: oklch(80% 0.15 200);
+    --shadow-glow: 0 0 20px oklch(70% 0.2 240 / 0.6), 0 0 40px
+      oklch(70% 0.2 240 / 0.3);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply text-foreground font-body antialiased;
+    /* SHINY ELECTRIC BLUE 1080p metallic gradient */
+    background: linear-gradient(
+      160deg,
+      #050f2a 0%,
+      #060f30 8%,
+      #07123a 16%,
+      #081545 25%,
+      #091755 35%,
+      #0a1a62 45%,
+      #0b1c6e 55%,
+      #0a195e 65%,
+      #09164e 75%,
+      #07123e 85%,
+      #060f32 93%,
+      #040b22 100%
+    );
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Shiny metallic overlay — premium electric blue shimmer */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* top-left electric cyan glow */
+    background: radial-gradient(
+        ellipse 90% 35% at 10% 8%,
+        rgba(0, 213, 255, 0.2) 0%,
+        transparent 55%
+      ), /* center premium blue sheen */
+      radial-gradient(
+        ellipse 70% 50% at 50% 40%,
+        rgba(10, 80, 200, 0.14) 0%,
+        transparent 65%
+      ), /* bottom-right purple accent */
+      radial-gradient(
+        ellipse 65% 45% at 88% 90%,
+        rgba(153, 69, 255, 0.16) 0%,
+        transparent 55%
+      ), /* horizontal metallic shine streak */
+      linear-gradient(
+        to bottom,
+        transparent 10%,
+        rgba(0, 150, 255, 0.09) 26%,
+        rgba(30, 180, 255, 0.15) 37%,
+        rgba(0, 150, 255, 0.09) 47%,
+        transparent 60%
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+  }
+
+  /* Scrollbar styling — thin, blue tinted */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 10, 40, 0.5);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 150, 255, 0.35);
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 180, 255, 0.55);
+  }
+}
+
+@layer utilities {
+  /* ── CarPlay tile card ── */
+  .tile-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .tile-active {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), inset 0 0 12px
+      rgba(0, 100, 255, 0.08);
+    border-color: rgba(59, 130, 246, 0.35);
+  }
+
+  .tile-status-dot {
+    display: inline-block;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── Glow utilities ── */
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(0, 213, 255, 0.6), inset 0 0 10px
+      rgba(0, 213, 255, 0.25);
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(153, 69, 255, 0.6), inset 0 0 10px
+      rgba(153, 69, 255, 0.25);
+  }
+
+  .glow-cyan {
+    box-shadow: 0 0 24px rgba(0, 213, 255, 0.7), inset 0 0 12px
+      rgba(0, 213, 255, 0.3);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 20px rgba(0, 255, 120, 0.6), inset 0 0 10px
+      rgba(0, 255, 120, 0.2);
+  }
+
+  .glow-amber {
+    box-shadow: 0 0 20px rgba(255, 180, 0, 0.6), inset 0 0 10px
+      rgba(255, 180, 0, 0.2);
+  }
+
+  /* oklch-based glow using CSS custom props */
+  .shadow-glow-blue {
+    box-shadow: 0 0 20px oklch(70% 0.2 240 / 0.5), 0 0 40px
+      oklch(70% 0.2 240 / 0.25);
+  }
+
+  .shadow-glow-purple {
+    box-shadow: 0 0 20px oklch(65% 0.2 290 / 0.5), 0 0 40px
+      oklch(65% 0.2 290 / 0.25);
+  }
+
+  .shadow-glow-enhanced {
+    box-shadow: 0 0 24px rgba(0, 213, 255, 0.6), 0 0 48px rgba(0, 100, 255, 0.3),
+      0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Metallic panel background — oklch-aligned */
+  .panel-metallic {
+    background: linear-gradient(
+      135deg,
+      oklch(20% 0.04 250 / 0.95) 0%,
+      oklch(12% 0.02 260 / 0.92) 50%,
+      oklch(18% 0.03 250 / 0.95) 100%
+    );
+    border: 1px solid oklch(50% 0.12 240 / 0.28);
+    backdrop-filter: blur(8px);
+  }
+
+  .slot-panel {
+    @apply relative rounded-sm p-3;
+    border: 1px solid rgba(0, 180, 255, 0.25);
+    background: rgba(5, 18, 45, 0.65);
+    backdrop-filter: blur(6px);
+  }
+
+  .wire-connector {
+    @apply relative;
+  }
+
+  /* ── Animations ── */
+  .animate-pulse-glow {
+    animation: pulse-glow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin 20s linear infinite;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.2s ease-out forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-startup {
+    animation: startup-sequence 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .animate-boot-flash {
+    animation: boot-flash 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .animate-credits-scroll {
+    animation: credits-scroll 90s linear forwards;
+  }
+
+  /* ── Keyframes ── */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 16px rgba(0, 213, 255, 0.7);
+    }
+    50% {
+      opacity: 0.8;
+      box-shadow: 0 0 36px rgba(0, 213, 255, 0.4), 0 0 60px
+        rgba(153, 69, 255, 0.25);
+    }
+  }
+
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes startup-sequence {
+    0% {
+      opacity: 0;
+      transform: translateY(8px) scale(0.97);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes boot-flash {
+    0% {
+      transform: scale(0.9);
+      opacity: 0.6;
+    }
+    60% {
+      transform: scale(1.05);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes signal-flow {
+    0% {
+      background-position: -100% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Credits scroll — translateY(100vh) → translateY(-300%) */
+  @keyframes credits-scroll {
+    0% {
+      transform: translateY(100vh);
+    }
+    100% {
+      transform: translateY(-320%);
+    }
+  }
+
+  /* Star field twinkle */
+  @keyframes star-twinkle {
+    0%,
+    100% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes stabilizer-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 20px rgba(153, 69, 255, 0.6), 0 0 40px
+        rgba(153, 69, 255, 0.35), inset 0 0 16px rgba(153, 69, 255, 0.12);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(153, 69, 255, 0.9), 0 0 60px
+        rgba(153, 69, 255, 0.5), 0 0 90px rgba(100, 0, 200, 0.3), inset 0 0 24px
+        rgba(153, 69, 255, 0.2);
+    }
+  }
+
+  @keyframes memory-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 16px rgba(0, 255, 120, 0.5), 0 0 32px
+        rgba(0, 255, 120, 0.25);
+    }
+    50% {
+      box-shadow: 0 0 28px rgba(0, 255, 120, 0.8), 0 0 56px
+        rgba(0, 255, 120, 0.4);
+    }
+  }
+
+  @keyframes note-float {
+    0% {
+      transform: translateY(0) rotate(-5deg);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(-8px) rotate(5deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(0) rotate(-5deg);
+      opacity: 0.7;
+    }
+  }
+
+  /* ── Text glow utilities ── */
+  .text-glow {
+    text-shadow: 0 0 12px rgba(0, 213, 255, 0.5), 0 0 24px
+      rgba(153, 69, 255, 0.3);
+  }
+
+  .text-glow-strong {
+    text-shadow: 0 0 8px rgba(0, 213, 255, 0.9), 0 0 16px rgba(0, 180, 255, 0.6),
+      0 0 32px rgba(0, 120, 255, 0.3);
+  }
+
+  .text-glow-green {
+    text-shadow: 0 0 10px rgba(0, 255, 120, 0.7), 0 0 20px
+      rgba(0, 255, 120, 0.4);
+  }
+
+  .text-glow-purple {
+    text-shadow: 0 0 10px rgba(153, 69, 255, 0.7), 0 0 20px
+      rgba(153, 69, 255, 0.4);
+  }
+
+  /* ── Display & misc ── */
+  .meter-readout {
+    @apply font-mono text-sm tracking-wider;
+    color: rgba(0, 213, 255, 0.9);
+  }
+
+  .meter-readout-lg {
+    @apply font-mono text-lg tracking-widest;
+    color: rgba(0, 213, 255, 0.95);
+    text-shadow: 0 0 8px rgba(0, 213, 255, 0.6);
+  }
+
+  .smd-meter {
+    @apply font-mono text-xs tracking-widest;
+    color: rgba(0, 213, 255, 0.85);
+    background: rgba(5, 18, 45, 0.8);
+    border: 1px solid rgba(0, 150, 255, 0.35);
+    padding: 8px 12px;
+    border-radius: 2px;
+    text-shadow: 0 0 6px rgba(0, 213, 255, 0.5);
+  }
+
+  .wired-connection {
+    @apply relative flex items-center justify-between;
+  }
+
+  .wired-connection::before {
+    content: "";
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      rgba(0, 150, 255, 0.6),
+      rgba(80, 0, 200, 0.5)
+    );
+    opacity: 0.4;
+  }
+
+  /* ── Amp chassis slot styles ── */
+  .amp-slot {
+    position: relative;
+    border: 1px solid oklch(0.7 0.2 240 / 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    background: oklch(0.1 0.06 262 / 0.8);
+  }
+
+  .amp-slot-active {
+    border-color: oklch(0.7 0.2 240 / 0.7);
+    box-shadow: 0 0 20px oklch(0.7 0.2 240 / 0.3);
+  }
+
+  /* ── 4-gauge wire line visualization ── */
+  .gauge-wire {
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      oklch(0.7 0.2 240 / 0.6),
+      oklch(0.65 0.2 290 / 0.6)
+    );
+    border-radius: 2px;
+  }
+
+  .gauge-wire.active {
+    background: linear-gradient(90deg, oklch(0.7 0.2 240), oklch(0.65 0.2 290));
+    box-shadow: 0 0 8px oklch(0.7 0.2 240 / 0.5);
+  }
+
+  .gauge-connector {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: oklch(0.7 0.2 240);
+    box-shadow: 0 0 6px oklch(0.7 0.2 240);
+  }
+
+  /* ── SMD meter readout ── */
+  .smd-meter {
+    font-family: "JetBrains Mono", monospace;
+    color: oklch(0.8 0.15 200);
+    text-shadow: 0 0 8px oklch(0.8 0.15 200 / 0.7);
+    background: oklch(0.08 0.04 262);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  .meter-readout-lg {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.25rem;
+    color: oklch(0.8 0.15 200);
+    text-shadow: 0 0 12px oklch(0.8 0.15 200 / 0.8);
+  }
+
+  /* ── Boot sequence stages ── */
+  .boot-stage {
+    opacity: 0;
+    transition: opacity 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .boot-stage.lit {
+    opacity: 1;
+    box-shadow: 0 0 24px oklch(0.7 0.2 240 / 0.5);
+  }
+
+  /* ── Boot stage animation (active class triggers startup-sequence) ── */
+  .boot-stage-animated.active {
+    animation: startup-sequence 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* ── Boot sequence — delay classes for staged lighting ── */
+  .boot-battery {
+    animation-delay: 0s;
+  }
+
+  .boot-fuses {
+    animation-delay: 0.15s;
+  }
+
+  .boot-converter {
+    animation-delay: 0.3s;
+  }
+
+  .boot-booster {
+    animation-delay: 0.45s;
+  }
+
+  .boot-amp {
+    animation-delay: 0.6s;
+  }
+
+  .boot-features {
+    animation-delay: 0.75s;
+  }
+
+  .boot-settings {
+    animation-delay: 0.9s;
+  }
+
+  /* ── 4-gauge connection visualization (legacy border-left style) ── */
+  .gauge-wire-border {
+    @apply relative;
+    border-left: 2px solid rgba(0, 150, 255, 0.35);
+    padding-left: 12px;
+  }
+
+  .gauge-wire-border.active {
+    border-left-color: rgba(0, 213, 255, 0.7);
+    box-shadow: inset 2px 0 16px rgba(0, 213, 255, 0.25);
+  }
+
+  .gauge-connector-dot {
+    @apply absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(0, 213, 255, 0.6);
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 12px rgba(0, 213, 255, 0.5);
+  }
+
+  /* Signal flow animation on active wire */
+  .signal-wire-active {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 213, 255, 0.15) 0%,
+      rgba(0, 213, 255, 0.5) 40%,
+      rgba(153, 69, 255, 0.7) 60%,
+      rgba(0, 213, 255, 0.15) 100%
+    );
+    background-size: 200% 100%;
+    animation: signal-flow 1.2s linear infinite;
+  }
+
+  /* Panel background for all main panels */
+  .panel-bg {
+    background: linear-gradient(
+      135deg,
+      rgba(10, 24, 60, 0.92) 0%,
+      rgba(12, 28, 75, 0.88) 50%,
+      rgba(10, 22, 55, 0.92) 100%
+    );
+    border: 1px solid rgba(0, 150, 255, 0.28);
+    backdrop-filter: blur(8px);
+  }
+
+  /* Active component glow */
+  .glow-active {
+    border: 1px solid rgba(0, 180, 255, 0.5);
+    box-shadow: 0 0 16px rgba(0, 213, 255, 0.35), 0 0 32px
+      rgba(0, 100, 255, 0.2), inset 0 0 12px rgba(0, 213, 255, 0.08);
+    animation: pulse-glow 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Stabilizer active glow */
+  .stabilizer-glow {
+    box-shadow: 0 0 20px rgba(153, 69, 255, 0.6), 0 0 40px
+      rgba(153, 69, 255, 0.35), 0 0 60px rgba(100, 0, 200, 0.2), inset 0 0 16px
+      rgba(153, 69, 255, 0.12);
+    animation: stabilizer-pulse 1.2s ease-in-out infinite;
+  }
+
+  /* Memory Commander green glow */
+  .memory-glow {
+    box-shadow: 0 0 20px rgba(0, 255, 120, 0.5), 0 0 40px
+      rgba(0, 255, 120, 0.25), inset 0 0 16px rgba(0, 255, 120, 0.08);
+    animation: memory-pulse 2s ease-in-out infinite;
+  }
+
+  /* ── EQ vertical slider ── */
+  input[type="range"].eq-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    outline: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  input[type="range"].eq-slider::-webkit-slider-runnable-track {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  input[type="range"].eq-slider::-moz-range-track {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  input[type="range"].eq-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--slider-color, rgba(0, 213, 255, 0.9));
+    box-shadow: 0 0 10px var(--slider-color, rgba(0, 213, 255, 0.8)), 0 0 20px
+      var(--slider-color, rgba(0, 213, 255, 0.4));
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    margin-top: -5px;
+    transition: box-shadow 0.15s ease;
+  }
+  input[type="range"].eq-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--slider-color, rgba(0, 213, 255, 0.9));
+    box-shadow: 0 0 10px var(--slider-color, rgba(0, 213, 255, 0.8)), 0 0 20px
+      var(--slider-color, rgba(0, 213, 255, 0.4));
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: box-shadow 0.15s ease;
+  }
+
+  input[type="range"].eq-slider:hover::-webkit-slider-thumb,
+  input[type="range"].eq-slider:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 16px var(--slider-color, rgba(0, 213, 255, 1)), 0 0 32px
+      var(--slider-color, rgba(0, 213, 255, 0.6));
+  }
+  input[type="range"].eq-slider:hover::-moz-range-thumb,
+  input[type="range"].eq-slider:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 16px var(--slider-color, rgba(0, 213, 255, 1)), 0 0 32px
+      var(--slider-color, rgba(0, 213, 255, 0.6));
+  }
+}
+
+@font-face {
+  font-family: "GeneralSans";
+  src: url("/assets/fonts/GeneralSans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("/assets/fonts/DMSans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/assets/fonts/JetBrainsMono.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+}

@@ -1,0 +1,2 @@
+// useMemoryCommander — permanently removed
+export {};

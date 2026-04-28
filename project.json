@@ -1,0 +1,27 @@
+{
+  "overview": "PowerAmp Player is a premium dark-themed music player with a fully programmed Virtual Amp system, Digital Stimulation + Analog Tube combined amps, Bluetooth analyzer with live power tracking, SRS/XM audio processing, and automatic 1-300 Hz frequency output across all channels.",
+  "features": [
+    "Music player with visualizer, album art, queue management",
+    "Animated power chain startup sequence (Batteries → Fuses → Amp → Features → Settings)",
+    "Virtual Amp with 6 screens inside a file drawer (Pioneer GM-DX104 style)",
+    "SMD AMM-1 live ohms/watts diagnostic meter",
+    "Digital Stimulation + Analog Tube combined amps (real-world PWM and tube specs)",
+    "4-channel power split: Bass 6000W / Mids 3000W / Highs 2000W / Tweeters 1000W",
+    "Protection system: Stabilizer 50M×86 + Commander Direct Hit",
+    "SRS HRTF processing — 30-foot surround effect in all directions",
+    "XM frequency bypass and banding — 24dB/octave, THD <0.01%, SNR >110dB",
+    "Automatic 1-300 Hz frequency output on all channels",
+    "Bluetooth analyzer with persistent speaker profiles and live 12,000W power budget"
+  ],
+  "category": "entertainment",
+  "tags": [
+    "music-player",
+    "audio",
+    "amplifier",
+    "equalizer",
+    "bluetooth",
+    "dark-theme",
+    "visualizer"
+  ],
+  "last_updated": "2026-04-18T14:23:18.780Z"
+}
