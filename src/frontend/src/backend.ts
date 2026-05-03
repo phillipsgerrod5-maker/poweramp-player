@@ -89,10 +89,223 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface backendInterface {
+export interface CommanderEvent {
+    id: bigint;
+    action: string;
+    feature: string;
+    value: string;
+    signalState: string;
+    previousValue: string;
+    timestamp: bigint;
+    channel: string;
+    autoFixed: boolean;
+    eventType: string;
 }
+export interface DiagnosticReport {
+    id: bigint;
+    problemsFound: Array<string>;
+    fixesApplied: Array<string>;
+    timestamp: bigint;
+    overallHealth: string;
+    channelStatuses: Array<[string, string]>;
+}
+export interface backendInterface {
+    /**
+     * / Clears all event history (does not affect diagnostic reports).
+     */
+    clearHistory(): Promise<void>;
+    /**
+     * / Returns all unresolved error events (eventType == "error" and not autoFixed).
+     */
+    getActiveProblems(): Promise<Array<CommanderEvent>>;
+    /**
+     * / Returns the most recent diagnostic reports, newest first.
+     */
+    getDiagnosticReports(limit: bigint): Promise<Array<DiagnosticReport>>;
+    /**
+     * / Returns paginated history, newest first.
+     * / offset=0 means start from the most recent event.
+     */
+    getHistory(limit: bigint, offset: bigint): Promise<Array<CommanderEvent>>;
+    /**
+     * / Returns the most recent events for a specific channel, newest first.
+     */
+    getHistoryByChannel(channel: string, limit: bigint): Promise<Array<CommanderEvent>>;
+    /**
+     * / Returns the most recent events for a specific feature, newest first.
+     */
+    getHistoryByFeature(feature: string, limit: bigint): Promise<Array<CommanderEvent>>;
+    /**
+     * / Returns the single most recent diagnostic report.
+     */
+    getLatestDiagnosticReport(): Promise<DiagnosticReport | null>;
+    getStats(): Promise<{
+        channelHealth: Array<[string, string]>;
+        totalEvents: bigint;
+        lastScanTimestamp: bigint;
+        activeProblems: bigint;
+    }>;
+    /**
+     * / Logs a full diagnostic report and returns its ID.
+     */
+    logDiagnosticReport(channelStatuses: Array<[string, string]>, problemsFound: Array<string>, fixesApplied: Array<string>, overallHealth: string): Promise<bigint>;
+    /**
+     * / Log a Commander event. Returns the new event's ID.
+     * / When the 1001st event is added the oldest is automatically dropped.
+     */
+    logEvent(eventType: string, feature: string, channel: string, action: string, value: string, previousValue: string, signalState: string, autoFixed: boolean): Promise<bigint>;
+}
+import type { DiagnosticReport as _DiagnosticReport } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
+    async clearHistory(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.clearHistory();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.clearHistory();
+            return result;
+        }
+    }
+    async getActiveProblems(): Promise<Array<CommanderEvent>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getActiveProblems();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getActiveProblems();
+            return result;
+        }
+    }
+    async getDiagnosticReports(arg0: bigint): Promise<Array<DiagnosticReport>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getDiagnosticReports(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getDiagnosticReports(arg0);
+            return result;
+        }
+    }
+    async getHistory(arg0: bigint, arg1: bigint): Promise<Array<CommanderEvent>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getHistory(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getHistory(arg0, arg1);
+            return result;
+        }
+    }
+    async getHistoryByChannel(arg0: string, arg1: bigint): Promise<Array<CommanderEvent>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getHistoryByChannel(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getHistoryByChannel(arg0, arg1);
+            return result;
+        }
+    }
+    async getHistoryByFeature(arg0: string, arg1: bigint): Promise<Array<CommanderEvent>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getHistoryByFeature(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getHistoryByFeature(arg0, arg1);
+            return result;
+        }
+    }
+    async getLatestDiagnosticReport(): Promise<DiagnosticReport | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getLatestDiagnosticReport();
+                return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getLatestDiagnosticReport();
+            return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getStats(): Promise<{
+        channelHealth: Array<[string, string]>;
+        totalEvents: bigint;
+        lastScanTimestamp: bigint;
+        activeProblems: bigint;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getStats();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getStats();
+            return result;
+        }
+    }
+    async logDiagnosticReport(arg0: Array<[string, string]>, arg1: Array<string>, arg2: Array<string>, arg3: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.logDiagnosticReport(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.logDiagnosticReport(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async logEvent(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string, arg5: string, arg6: string, arg7: boolean): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.logEvent(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.logEvent(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+            return result;
+        }
+    }
+}
+function from_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_DiagnosticReport]): DiagnosticReport | null {
+    return value.length === 0 ? null : value[0];
 }
 export interface CreateActorOptions {
     agent?: Agent;

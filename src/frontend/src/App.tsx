@@ -1,115 +1,89 @@
-import { StartupSequence } from "@/components/StartupSequence";
 import { Toaster } from "@/components/ui/sonner";
-import { useHighAmp } from "@/hooks/useHighAmp";
-import type { UseHighAmpReturn } from "@/hooks/useHighAmp";
-import { useMasterPower } from "@/hooks/useMasterPower";
-import type { UseMasterPowerReturn } from "@/hooks/useMasterPower";
-import { useSeparationSections } from "@/hooks/useSeparationSections";
-import type { UseSeparationSectionsReturn } from "@/hooks/useSeparationSections";
-import { PlayerPage } from "@/pages/PlayerPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext, useCallback, useContext, useState } from "react";
-
-// ─── Contexts ─────────────────────────────────────────────────────────────────
-
-interface MasterPowerCtx extends UseMasterPowerReturn {}
-interface HighAmpCtx extends UseHighAmpReturn {}
-interface SeparationSectionsCtx extends UseSeparationSectionsReturn {}
-
-const MasterPowerContext = createContext<MasterPowerCtx | null>(null);
-const HighAmpContext = createContext<HighAmpCtx | null>(null);
-const SeparationSectionsContext = createContext<SeparationSectionsCtx | null>(
-  null,
-);
-
-export function useMasterPowerCtx(): MasterPowerCtx {
-  const ctx = useContext(MasterPowerContext);
-  if (!ctx) throw new Error("useMasterPowerCtx must be used within App");
-  return ctx;
-}
-
-export function useHighAmpCtx(): HighAmpCtx {
-  const ctx = useContext(HighAmpContext);
-  if (!ctx) throw new Error("useHighAmpCtx must be used within App");
-  return ctx;
-}
-
-export function useSeparationSectionsCtx(): SeparationSectionsCtx {
-  const ctx = useContext(SeparationSectionsContext);
-  if (!ctx) throw new Error("useSeparationSectionsCtx must be used within App");
-  return ctx;
-}
-
-// ─── Query client ─────────────────────────────────────────────────────────────
+import { Component, type ErrorInfo, type ReactNode } from "react";
+import { PlayerPage } from "./components/PlayerPage";
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { staleTime: 1000 * 60 * 5, retry: 1 },
-  },
+  defaultOptions: { queries: { staleTime: 1000 * 60 * 5, retry: 1 } },
 });
 
-// ─── Inner app ────────────────────────────────────────────────────────────────
-
-function InnerApp() {
-  const [startupDone, setStartupDone] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  const masterPower = useMasterPower();
-  const highAmp = useHighAmp(isPlaying, masterPower.state.masterPower);
-  const separationSections = useSeparationSections(isPlaying);
-
-  const handleStartupComplete = useCallback(() => {
-    setStartupDone(true);
-  }, []);
-
-  return (
-    <MasterPowerContext.Provider value={masterPower}>
-      <HighAmpContext.Provider value={highAmp}>
-        <SeparationSectionsContext.Provider value={separationSections}>
-          {/* ── GLOBAL BRANDING BAR ─────────────────────────────────── */}
+interface EBState {
+  hasError: boolean;
+  message: string;
+}
+class ErrorBoundary extends Component<{ children: ReactNode }, EBState> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, message: "" };
+  }
+  static getDerivedStateFromError(error: Error): EBState {
+    return { hasError: true, message: error.message ?? "Unknown error" };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("[PowerAmp] Error:", error, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            height: "100dvh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#000814",
+            color: "#00d5ff",
+            fontFamily: "monospace",
+            gap: 16,
+            padding: 24,
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 36 }}>⚡</div>
+          <div style={{ fontSize: 14 }}>PowerAmp Player — Engine Error</div>
           <div
-            className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center py-[3px]"
             style={{
-              background:
-                "linear-gradient(to right, rgba(0,10,35,0.98), rgba(0,20,60,0.97), rgba(0,10,35,0.98))",
-              borderBottom: "1px solid rgba(0,120,255,0.25)",
-              boxShadow: "0 1px 12px rgba(0,80,200,0.15)",
+              fontSize: 11,
+              color: "rgba(255,255,255,0.4)",
+              maxWidth: 300,
             }}
           >
-            <span
-              className="text-[8px] font-mono tracking-[0.4em] uppercase select-none text-glow"
-              style={{ color: "rgba(0,180,255,0.75)" }}
-            >
-              gerrod / engeeier / product / desiger
-            </span>
+            {this.state.message}
           </div>
-
-          {/* Offset content below branding bar */}
-          <div className="pt-[18px] h-full flex flex-col">
-            {!startupDone && (
-              <StartupSequence onComplete={handleStartupComplete} />
-            )}
-            <div className={startupDone ? "block h-full" : "invisible h-full"}>
-              <PlayerPage
-                startupDone={startupDone}
-                onPlayingChange={setIsPlaying}
-              />
-            </div>
-          </div>
-
-          <Toaster position="top-center" theme="dark" />
-        </SeparationSectionsContext.Provider>
-      </HighAmpContext.Provider>
-    </MasterPowerContext.Provider>
-  );
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            style={{
+              marginTop: 8,
+              padding: "10px 24px",
+              background: "rgba(0,213,255,0.1)",
+              border: "1px solid rgba(0,213,255,0.4)",
+              borderRadius: 8,
+              color: "#00d5ff",
+              fontFamily: "monospace",
+              fontSize: 12,
+              cursor: "pointer",
+            }}
+          >
+            Tap to Reload
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
-
-// ─── Root app ─────────────────────────────────────────────────────────────────
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <InnerApp />
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <div className="h-full dark">
+          <PlayerPage />
+        </div>
+        <Toaster position="top-center" theme="dark" />
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

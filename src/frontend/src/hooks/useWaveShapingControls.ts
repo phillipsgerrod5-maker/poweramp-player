@@ -1,154 +1,102 @@
-/**
- * useWaveShapingControls — WaveShaper / Limiter / GainNode Controls
- *
- * Exposes the browser-level audio nodes (WaveShaper, Limiter, GainNode)
- * as user-controlled sliders. Hard cap: 2% max each.
- *
- * Default: 0 (completely off). User owns these — they cannot run free.
- * Range: 0-2 for all three. If you try to set above 2, it clamps to 2.
- *
- * These do NOT add distortion, DO NOT touch volume, DO NOT limit bass notes.
- */
+import type { WaveShapingState } from "@/types/player";
+import { useCallback, useState } from "react";
 
-import type { WaveShapingControlState } from "@/types/player";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  getSharedCompressor,
-  getSharedCtx,
-  getSharedMasterGain,
-} from "./usePlayer";
-
-const STORAGE_KEY = "poweramp_waveshaping_controls";
-const HARD_CAP = 2;
-
-function loadState(): WaveShapingControlState {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as WaveShapingControlState;
-  } catch {
-    /* ignore */
+// Build mild curve inline for WaveShaper node updates
+function makeMildCurve(amount: number): Float32Array<ArrayBuffer> {
+  const n = 256;
+  const curve = new Float32Array(new ArrayBuffer(n * 4));
+  for (let i = 0; i < n; i++) {
+    const x = (i * 2) / n - 1;
+    if (amount === 0) {
+      curve[i] = x;
+    } else {
+      curve[i] =
+        Math.tanh(x * (1 + amount * 0.5)) / Math.tanh(1 + amount * 0.5);
+    }
   }
-  return {
-    waveShaperPercent: 0,
-    limiterPercent: 0,
-    gainNodePercent: 0,
-  };
+  return curve;
 }
 
-function saveState(s: WaveShapingControlState): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  } catch {
-    /* ignore */
-  }
+export interface UseWaveShapingReturn {
+  state: WaveShapingState;
+  setWaveShaper: (v: number) => void;
+  setLimiter: (v: number) => void;
+  setGainNode: (v: number) => void;
+  applyToNodes: (nodes: Record<string, AudioNode>) => void;
 }
 
-/**
- * Apply WaveShaper effect — 0% = completely bypassed, 2% = barely there.
- * Affects the compressor knee softness (emulates waveshaper curve character).
- * At 0%: knee=10 (transparent). At 2%: knee=12 (very slight rounding).
- */
-function applyWaveShaper(pct: number): void {
-  const comp = getSharedCompressor();
-  const ctx = getSharedCtx();
-  if (!comp || !ctx || ctx.state !== "running") return;
-  const knee = 10 + (pct / HARD_CAP) * 2; // 10-12dB range only
-  comp.knee.setTargetAtTime(knee, ctx.currentTime, 0.1);
-}
+export function useWaveShapingControls(): UseWaveShapingReturn {
+  const [state, setState] = useState<WaveShapingState>({
+    waveShaper: Number.parseFloat(
+      localStorage.getItem("poweramp_ws_waveshaper") ?? "2",
+    ),
+    limiter: Number.parseFloat(
+      localStorage.getItem("poweramp_ws_limiter") ?? "2",
+    ),
+    gainNode: Number.parseFloat(
+      localStorage.getItem("poweramp_ws_gain") ?? "2",
+    ),
+  });
 
-/**
- * Apply Limiter effect — 0% = off, 2% = -1dB tighter ceiling only.
- * Adjusts compressor threshold very slightly. Never chokes volume.
- * At 0%: threshold stays at current value. At 2%: -1dB tighter.
- */
-function applyLimiter(pct: number): void {
-  const comp = getSharedCompressor();
-  const ctx = getSharedCtx();
-  if (!comp || !ctx || ctx.state !== "running") return;
-  // Current threshold + at most -1dB adjustment
-  const adjustment = -(pct / HARD_CAP) * 1.0; // 0 to -1dB max
-  const baseThreshold = -6; // the fixed base
-  comp.threshold.setTargetAtTime(
-    baseThreshold + adjustment,
-    ctx.currentTime,
-    0.1,
+  const applyToNodes = useCallback(
+    (nodes: Record<string, AudioNode>, st: WaveShapingState = state) => {
+      // NOTE: waveShapingWS, waveShapingComp, waveShapingGain are GainNodes in the engine
+      // (transparent passthrough — no distortion). We treat them as gain passthrough only.
+
+      // waveShapingWS — GainNode passthrough (no WaveShaper curve applied)
+      // We only adjust if it is a WaveShaperNode (has .curve property); skip otherwise
+      const wsNode = nodes.waveShapingWS as AudioNode | undefined;
+      if (wsNode && "curve" in wsNode) {
+        const ws = wsNode as WaveShaperNode;
+        const amount = (st.waveShaper / 2) * 0.5;
+        ws.curve = makeMildCurve(amount);
+      }
+
+      // waveShapingComp — GainNode passthrough (check for .ratio before using as compressor)
+      const compNode = nodes.waveShapingComp as AudioNode | undefined;
+      if (compNode && "ratio" in compNode) {
+        const comp = compNode as DynamicsCompressorNode;
+        if (comp.ratio && comp.context) {
+          // At 0: ratio 1.0 (no compression), at 2: ratio 1.05 (barely there)
+          const ratio = 1.0 + (st.limiter / 2) * 0.05;
+          comp.ratio.setTargetAtTime(ratio, comp.context.currentTime, 0.05);
+        }
+      } else if (compNode && "gain" in compNode) {
+        // It's a GainNode — leave at 1.0 (transparent)
+        const g = compNode as GainNode;
+        if (g.gain && g.context) {
+          g.gain.setTargetAtTime(1.0, g.context.currentTime, 0.05);
+        }
+      }
+
+      // waveShapingGain — GainNode (2% max boost)
+      const gainNode = nodes.waveShapingGain as GainNode | undefined;
+      if (gainNode?.context) {
+        // At 0: gain 1.0, at 2: gain 1.02 (2% max boost)
+        const g = 1.0 + (st.gainNode / 100) * 0.02;
+        gainNode.gain.setTargetAtTime(g, gainNode.context.currentTime, 0.05);
+      }
+    },
+    [state],
   );
-}
 
-/**
- * Apply GainNode — 0% = 1.0 (unity), 2% = 1.02 (barely +0.17dB).
- * This is the absolute maximum allowed gain from this control.
- */
-function applyGainNode(pct: number): void {
-  const gain = getSharedMasterGain();
-  const ctx = getSharedCtx();
-  if (!gain || !ctx || ctx.state !== "running") return;
-  // 0% → 1.0, 2% → 1.02 maximum — barely detectable
-  const gainVal = 1.0 + (pct / HARD_CAP) * 0.02;
-  gain.gain.setTargetAtTime(gainVal, ctx.currentTime, 0.1);
-}
-
-export interface UseWaveShapingControlsReturn {
-  state: WaveShapingControlState;
-  setWaveShaper: (value: number) => void;
-  setLimiter: (value: number) => void;
-  setGainNode: (value: number) => void;
-}
-
-export function useWaveShapingControls(): UseWaveShapingControlsReturn {
-  const [state, setState] = useState<WaveShapingControlState>(loadState);
-  const stateRef = useRef(state);
-  stateRef.current = state;
-
-  // Re-apply on mount in case audio context was re-created
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const s = stateRef.current;
-      if (s.waveShaperPercent > 0) applyWaveShaper(s.waveShaperPercent);
-      if (s.limiterPercent > 0) applyLimiter(s.limiterPercent);
-      if (s.gainNodePercent > 0) applyGainNode(s.gainNodePercent);
-    }, 500);
-    return () => clearTimeout(timeout);
+  const setWaveShaper = useCallback((v: number) => {
+    const c = Math.max(0, Math.min(2, v));
+    localStorage.setItem("poweramp_ws_waveshaper", String(c));
+    setState((prev) => ({ ...prev, waveShaper: c }));
   }, []);
 
-  const setWaveShaper = useCallback((value: number) => {
-    const clamped = Math.max(0, Math.min(HARD_CAP, value));
-    applyWaveShaper(clamped);
-    setState((prev) => {
-      const next: WaveShapingControlState = {
-        ...prev,
-        waveShaperPercent: clamped,
-      };
-      saveState(next);
-      return next;
-    });
+  const setLimiter = useCallback((v: number) => {
+    const c = Math.max(0, Math.min(2, v));
+    localStorage.setItem("poweramp_ws_limiter", String(c));
+    setState((prev) => ({ ...prev, limiter: c }));
   }, []);
 
-  const setLimiter = useCallback((value: number) => {
-    const clamped = Math.max(0, Math.min(HARD_CAP, value));
-    applyLimiter(clamped);
-    setState((prev) => {
-      const next: WaveShapingControlState = {
-        ...prev,
-        limiterPercent: clamped,
-      };
-      saveState(next);
-      return next;
-    });
+  const setGainNode = useCallback((v: number) => {
+    const c = Math.max(0, Math.min(2, v));
+    localStorage.setItem("poweramp_ws_gain", String(c));
+    setState((prev) => ({ ...prev, gainNode: c }));
   }, []);
 
-  const setGainNode = useCallback((value: number) => {
-    const clamped = Math.max(0, Math.min(HARD_CAP, value));
-    applyGainNode(clamped);
-    setState((prev) => {
-      const next: WaveShapingControlState = {
-        ...prev,
-        gainNodePercent: clamped,
-      };
-      saveState(next);
-      return next;
-    });
-  }, []);
-
-  return { state, setWaveShaper, setLimiter, setGainNode };
+  return { state, setWaveShaper, setLimiter, setGainNode, applyToNodes };
 }

@@ -1,2 +1,2 @@
-// useMemoryCommander — permanently removed
+// Permanently removed — do not import
 export {};

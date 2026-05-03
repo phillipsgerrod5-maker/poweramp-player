@@ -1,2 +1,1 @@
-// MemoryCommanderPanel — permanently removed
 export {};

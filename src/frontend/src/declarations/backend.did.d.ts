@@ -10,7 +10,81 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface _SERVICE {}
+export interface CommanderEvent {
+  'id' : bigint,
+  'action' : string,
+  'feature' : string,
+  'value' : string,
+  'signalState' : string,
+  'previousValue' : string,
+  'timestamp' : bigint,
+  'channel' : string,
+  'autoFixed' : boolean,
+  'eventType' : string,
+}
+export interface DiagnosticReport {
+  'id' : bigint,
+  'problemsFound' : Array<string>,
+  'fixesApplied' : Array<string>,
+  'timestamp' : bigint,
+  'overallHealth' : string,
+  'channelStatuses' : Array<[string, string]>,
+}
+export interface _SERVICE {
+  /**
+   * / Clears all event history (does not affect diagnostic reports).
+   */
+  'clearHistory' : ActorMethod<[], undefined>,
+  /**
+   * / Returns all unresolved error events (eventType == "error" and not autoFixed).
+   */
+  'getActiveProblems' : ActorMethod<[], Array<CommanderEvent>>,
+  /**
+   * / Returns the most recent diagnostic reports, newest first.
+   */
+  'getDiagnosticReports' : ActorMethod<[bigint], Array<DiagnosticReport>>,
+  /**
+   * / Returns paginated history, newest first.
+   * / offset=0 means start from the most recent event.
+   */
+  'getHistory' : ActorMethod<[bigint, bigint], Array<CommanderEvent>>,
+  /**
+   * / Returns the most recent events for a specific channel, newest first.
+   */
+  'getHistoryByChannel' : ActorMethod<[string, bigint], Array<CommanderEvent>>,
+  /**
+   * / Returns the most recent events for a specific feature, newest first.
+   */
+  'getHistoryByFeature' : ActorMethod<[string, bigint], Array<CommanderEvent>>,
+  /**
+   * / Returns the single most recent diagnostic report.
+   */
+  'getLatestDiagnosticReport' : ActorMethod<[], [] | [DiagnosticReport]>,
+  'getStats' : ActorMethod<
+    [],
+    {
+      'channelHealth' : Array<[string, string]>,
+      'totalEvents' : bigint,
+      'lastScanTimestamp' : bigint,
+      'activeProblems' : bigint,
+    }
+  >,
+  /**
+   * / Logs a full diagnostic report and returns its ID.
+   */
+  'logDiagnosticReport' : ActorMethod<
+    [Array<[string, string]>, Array<string>, Array<string>, string],
+    bigint
+  >,
+  /**
+   * / Log a Commander event. Returns the new event's ID.
+   * / When the 1001st event is added the oldest is automatically dropped.
+   */
+  'logEvent' : ActorMethod<
+    [string, string, string, string, string, string, string, boolean],
+    bigint
+  >,
+}
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
 export declare const idlFactory: IDL.InterfaceFactory;

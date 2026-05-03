@@ -1,2 +1,2 @@
-// Consolidated into useSrsProcessor.ts — this file is intentionally empty.
+// BluetoothAnalyzerPanel — permanently removed
 export {};

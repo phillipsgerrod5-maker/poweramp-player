@@ -1,2 +1,65 @@
+type DiagnosticReport = 
+ record {
+   channelStatuses: vec record {
+                          text;
+                          text;
+                        };
+   fixesApplied: vec text;
+   id: nat;
+   overallHealth: text;
+   problemsFound: vec text;
+   timestamp: int;
+ };
+type CommanderEvent = 
+ record {
+   action: text;
+   autoFixed: bool;
+   channel: text;
+   eventType: text;
+   feature: text;
+   id: nat;
+   previousValue: text;
+   signalState: text;
+   timestamp: int;
+   value: text;
+ };
 service : {
+  /// Clears all event history (does not affect diagnostic reports).
+  clearHistory: () -> ();
+  /// Returns all unresolved error events (eventType == "error" and not autoFixed).
+  getActiveProblems: () -> (vec CommanderEvent) query;
+  /// Returns the most recent diagnostic reports, newest first.
+  getDiagnosticReports: (limit: nat) -> (vec DiagnosticReport) query;
+  /// Returns paginated history, newest first.
+  /// offset=0 means start from the most recent event.
+  getHistory: (limit: nat, offset: nat) -> (vec CommanderEvent) query;
+  /// Returns the most recent events for a specific channel, newest first.
+  getHistoryByChannel: (channel: text, limit: nat) ->
+   (vec CommanderEvent) query;
+  /// Returns the most recent events for a specific feature, newest first.
+  getHistoryByFeature: (feature: text, limit: nat) ->
+   (vec CommanderEvent) query;
+  /// Returns the single most recent diagnostic report.
+  getLatestDiagnosticReport: () -> (opt DiagnosticReport) query;
+  getStats: () ->
+   (record {
+      activeProblems: nat;
+      channelHealth: vec record {
+                           text;
+                           text;
+                         };
+      lastScanTimestamp: int;
+      totalEvents: nat;
+    }) query;
+  /// Logs a full diagnostic report and returns its ID.
+  logDiagnosticReport: (channelStatuses: vec record {
+                                               text;
+                                               text;
+                                             }, problemsFound: vec text,
+   fixesApplied: vec text, overallHealth: text) -> (nat);
+  /// Log a Commander event. Returns the new event's ID.
+  /// When the 1001st event is added the oldest is automatically dropped.
+  logEvent: (eventType: text, feature: text, channel: text, action: text,
+   value: text, previousValue: text, signalState: text, autoFixed: bool) ->
+   (nat);
 }

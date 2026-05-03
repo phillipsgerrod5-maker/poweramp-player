@@ -1,27 +1,26 @@
 {
-  "overview": "PowerAmp Player is a premium dark-themed music player with a fully programmed Virtual Amp system, Digital Stimulation + Analog Tube combined amps, Bluetooth analyzer with live power tracking, SRS/XM audio processing, and automatic 1-300 Hz frequency output across all channels.",
+  "overview": "PowerAmp Player is a browser-based touchscreen virtual music player and advanced audio control system with a CarPlay-style grid interface. Features a Master Commander Unit, 4 fully isolated audio channels (Bass, Mids, Highs, Tweeters), 26+ feature tiles all truly wired to the audio chain, and a smart diagnostic system.",
   "features": [
-    "Music player with visualizer, album art, queue management",
-    "Animated power chain startup sequence (Batteries → Fuses → Amp → Features → Settings)",
-    "Virtual Amp with 6 screens inside a file drawer (Pioneer GM-DX104 style)",
-    "SMD AMM-1 live ohms/watts diagnostic meter",
-    "Digital Stimulation + Analog Tube combined amps (real-world PWM and tube specs)",
-    "4-channel power split: Bass 6000W / Mids 3000W / Highs 2000W / Tweeters 1000W",
-    "Protection system: Stabilizer 50M×86 + Commander Direct Hit",
-    "SRS HRTF processing — 30-foot surround effect in all directions",
-    "XM frequency bypass and banding — 24dB/octave, THD <0.01%, SNR >110dB",
-    "Automatic 1-300 Hz frequency output on all channels",
-    "Bluetooth analyzer with persistent speaker profiles and live 12,000W power budget"
+    "Master Commander Unit with live diagnostics and 1000-item history",
+    "4 fully isolated audio channels — Bass (14-50Hz), Mids, Highs, Tweeters",
+    "Audio locked to app page only — chat page banned from any audio access",
+    "26+ feature tiles each with own dedicated audio nodes",
+    "True 12-layer power chain with Signal Booster, System Booster, Virtual Power Converter",
+    "New Protection System with 3 sliders — Distortion Clean, Clipping Control, Particle Breakdown",
+    "6-band EQ ±12dB fully isolated per band",
+    "99.0 Scanner — full diagnostic tool with auto-fix",
+    "Auto-save on every control touch",
+    "Shiny blue 1080p CarPlay-style grid UI"
   ],
   "category": "entertainment",
   "tags": [
     "music-player",
     "audio",
-    "amplifier",
+    "virtual-amp",
     "equalizer",
-    "bluetooth",
-    "dark-theme",
-    "visualizer"
+    "bass",
+    "audio-processing",
+    "car-audio"
   ],
-  "last_updated": "2026-04-18T14:23:18.780Z"
+  "last_updated": "2026-05-03T02:09:24.821Z"
 }

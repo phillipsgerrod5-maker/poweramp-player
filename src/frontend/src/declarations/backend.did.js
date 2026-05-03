@@ -8,10 +8,182 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const idlService = IDL.Service({});
+export const CommanderEvent = IDL.Record({
+  'id' : IDL.Nat,
+  'action' : IDL.Text,
+  'feature' : IDL.Text,
+  'value' : IDL.Text,
+  'signalState' : IDL.Text,
+  'previousValue' : IDL.Text,
+  'timestamp' : IDL.Int,
+  'channel' : IDL.Text,
+  'autoFixed' : IDL.Bool,
+  'eventType' : IDL.Text,
+});
+export const DiagnosticReport = IDL.Record({
+  'id' : IDL.Nat,
+  'problemsFound' : IDL.Vec(IDL.Text),
+  'fixesApplied' : IDL.Vec(IDL.Text),
+  'timestamp' : IDL.Int,
+  'overallHealth' : IDL.Text,
+  'channelStatuses' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+});
+
+export const idlService = IDL.Service({
+  'clearHistory' : IDL.Func([], [], []),
+  'getActiveProblems' : IDL.Func([], [IDL.Vec(CommanderEvent)], ['query']),
+  'getDiagnosticReports' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Vec(DiagnosticReport)],
+      ['query'],
+    ),
+  'getHistory' : IDL.Func(
+      [IDL.Nat, IDL.Nat],
+      [IDL.Vec(CommanderEvent)],
+      ['query'],
+    ),
+  'getHistoryByChannel' : IDL.Func(
+      [IDL.Text, IDL.Nat],
+      [IDL.Vec(CommanderEvent)],
+      ['query'],
+    ),
+  'getHistoryByFeature' : IDL.Func(
+      [IDL.Text, IDL.Nat],
+      [IDL.Vec(CommanderEvent)],
+      ['query'],
+    ),
+  'getLatestDiagnosticReport' : IDL.Func(
+      [],
+      [IDL.Opt(DiagnosticReport)],
+      ['query'],
+    ),
+  'getStats' : IDL.Func(
+      [],
+      [
+        IDL.Record({
+          'channelHealth' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+          'totalEvents' : IDL.Nat,
+          'lastScanTimestamp' : IDL.Int,
+          'activeProblems' : IDL.Nat,
+        }),
+      ],
+      ['query'],
+    ),
+  'logDiagnosticReport' : IDL.Func(
+      [
+        IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+        IDL.Vec(IDL.Text),
+        IDL.Vec(IDL.Text),
+        IDL.Text,
+      ],
+      [IDL.Nat],
+      [],
+    ),
+  'logEvent' : IDL.Func(
+      [
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Bool,
+      ],
+      [IDL.Nat],
+      [],
+    ),
+});
 
 export const idlInitArgs = [];
 
-export const idlFactory = ({ IDL }) => { return IDL.Service({}); };
+export const idlFactory = ({ IDL }) => {
+  const CommanderEvent = IDL.Record({
+    'id' : IDL.Nat,
+    'action' : IDL.Text,
+    'feature' : IDL.Text,
+    'value' : IDL.Text,
+    'signalState' : IDL.Text,
+    'previousValue' : IDL.Text,
+    'timestamp' : IDL.Int,
+    'channel' : IDL.Text,
+    'autoFixed' : IDL.Bool,
+    'eventType' : IDL.Text,
+  });
+  const DiagnosticReport = IDL.Record({
+    'id' : IDL.Nat,
+    'problemsFound' : IDL.Vec(IDL.Text),
+    'fixesApplied' : IDL.Vec(IDL.Text),
+    'timestamp' : IDL.Int,
+    'overallHealth' : IDL.Text,
+    'channelStatuses' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+  });
+  
+  return IDL.Service({
+    'clearHistory' : IDL.Func([], [], []),
+    'getActiveProblems' : IDL.Func([], [IDL.Vec(CommanderEvent)], ['query']),
+    'getDiagnosticReports' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Vec(DiagnosticReport)],
+        ['query'],
+      ),
+    'getHistory' : IDL.Func(
+        [IDL.Nat, IDL.Nat],
+        [IDL.Vec(CommanderEvent)],
+        ['query'],
+      ),
+    'getHistoryByChannel' : IDL.Func(
+        [IDL.Text, IDL.Nat],
+        [IDL.Vec(CommanderEvent)],
+        ['query'],
+      ),
+    'getHistoryByFeature' : IDL.Func(
+        [IDL.Text, IDL.Nat],
+        [IDL.Vec(CommanderEvent)],
+        ['query'],
+      ),
+    'getLatestDiagnosticReport' : IDL.Func(
+        [],
+        [IDL.Opt(DiagnosticReport)],
+        ['query'],
+      ),
+    'getStats' : IDL.Func(
+        [],
+        [
+          IDL.Record({
+            'channelHealth' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+            'totalEvents' : IDL.Nat,
+            'lastScanTimestamp' : IDL.Int,
+            'activeProblems' : IDL.Nat,
+          }),
+        ],
+        ['query'],
+      ),
+    'logDiagnosticReport' : IDL.Func(
+        [
+          IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+          IDL.Vec(IDL.Text),
+          IDL.Vec(IDL.Text),
+          IDL.Text,
+        ],
+        [IDL.Nat],
+        [],
+      ),
+    'logEvent' : IDL.Func(
+        [
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Bool,
+        ],
+        [IDL.Nat],
+        [],
+      ),
+  });
+};
 
 export const init = ({ IDL }) => { return []; };

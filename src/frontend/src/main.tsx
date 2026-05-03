@@ -7,7 +7,6 @@ import "./index.css";
 BigInt.prototype.toJSON = function () {
   return this.toString();
 };
-
 declare global {
   interface BigInt {
     toJSON(): string;

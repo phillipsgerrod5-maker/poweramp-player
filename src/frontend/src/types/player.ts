@@ -1,650 +1,411 @@
-// ─── Core Track & Playback ────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════
+// PowerAmp Player — Shared Types
+// ═══════════════════════════════════════════════════
 
-export interface Track {
-  id: string;
-  /** Display title (primary label) */
-  title: string;
-  /** File name fallback — kept for backward compat */
+export type ChannelStatus = "green" | "yellow" | "standby";
+export type EQBand =
+  | "bass"
+  | "lowMid"
+  | "vocals"
+  | "mid"
+  | "highMid"
+  | "treble";
+export type BoosterTier = "A+" | "B+" | "C+" | "D+";
+
+export interface ChannelInfo {
+  id: number;
   name: string;
-  artist: string;
-  album?: string;
-  duration: number; // seconds
-  /** Object URL or static path */
-  src: string;
-  /** Legacy alias for src */
-  url: string;
-  file: File | null;
-  albumArt?: string;
+  status: ChannelStatus;
+  locked: boolean;
+  feature?: string;
 }
 
-export type RepeatMode = "none" | "one" | "all";
-
-export interface PlayerState {
-  tracks: Track[];
-  currentIndex: number;
-  isPlaying: boolean;
-  currentTime: number;
-  duration: number;
-  /** Display scale 1–700 (tablet volume engine) */
+export interface AudioEngineState {
+  initialized: boolean;
   volume: number;
-  isShuffle: boolean;
-  repeatMode: RepeatMode;
-  albumArt?: string;
+  masterPower: number;
+  sampleRate: number;
+  latency: number;
+  boosterTier: BoosterTier;
+  channelStatuses: ChannelInfo[];
+  isLocked: boolean;
 }
-
-// ─── Bass Types ───────────────────────────────────────────────────────────────
-
-export type BassType =
-  | "deep"
-  | "tight"
-  | "punchy"
-  | "warm"
-  | "sub"
-  | "natural"
-  | "crisp";
-
-// ─── EQ State ─────────────────────────────────────────────────────────────────
-// 6 fully independent bands — every slider is its own node, no shared state.
 
 export interface EQState {
-  /** BASS — 14-50Hz, lowshelf, Commander pre-bias +1.5dB */
-  bass: number; // -18 to +18 dB
-  /** LOW MID — 300-800Hz, peaking 400Hz Q=1.5 */
+  bass: number;
   lowMid: number;
-  /** VOCALS — Dark Nice Crystal 3Ω, peaking 1800Hz Q=2.0, Commander protected */
   vocals: number;
-  /** MID — 800Hz-2.5kHz, peaking 1200Hz Q=1.0 */
   mid: number;
-  /** HIGH MID — 2.5-8kHz, highshelf 4000Hz */
   highMid: number;
-  /** TREBLE — 8-20kHz, highshelf 10kHz, smooth tweeters */
   treble: number;
 }
 
-// ─── Protection State ─────────────────────────────────────────────────────────
-
-export interface ProtectionState {
-  stabilizerStrength: string;
-  commanderActive: boolean;
-  commanderStrength: string;
-  commanderReachesEQ: boolean;
-  distortionLevel: number;
-  clippingRate: number;
-  isActing: boolean;
-  bassDistortion: number;
-  midsDistortion: number;
-  highsDistortion: number;
-  commanderPowerDraw: number;
-  commanderActive2: boolean;
+export interface OldProtectionState {
+  engineGuard: number;
+  bassMidsGuard: number;
+  highsGuard: number;
 }
-
-// ─── New Protection State — All 3 sliders ─────────────────────────────────────
 
 export interface NewProtectionState {
-  /** Slider 1: distortion/clipping/output cleaner — range 1-10, never touches volume */
-  slider1: number;
-  /** Slider 2: noise reduction for clipping ONLY — range 1-10, never touches volume */
-  slider2: number;
-  /** Slider 3: TBD System Reserved — always locked */
-  slider3_placeholder: true;
-  /** Overall loudness limit — range 1-10 */
-  loudnessLimit: number;
-  isActive: boolean;
+  distortionClean: number;
+  clippingNoise: number;
+  protectionPower: number;
 }
 
-// ─── Vocal State ──────────────────────────────────────────────────────────────
-
-export interface VocalState {
-  vocalGain: number;
-  vocalCommanderActive: boolean;
-}
-
-// ─── Natural Bottom State ─────────────────────────────────────────────────────
-
-export interface NaturalBottomState {
-  active: boolean;
-  targetHz: number;
-  gainLevel: number;
-  voiceDetected: boolean;
-}
-
-// ─── SRS HD 9.0 State ─────────────────────────────────────────────────────────
-
-export interface SrsHD9State {
-  hd9Active: boolean;
-  pumpingExcursionActive: boolean;
-  excursionStrength: number;
-  naturalBottom: boolean;
-  naturalBottomHz: number;
-  instrumentClarityScore: number;
-  smoothTweeters: boolean;
-  monitorSensorsActive: boolean;
-}
-
-// ─── Automasphers State ───────────────────────────────────────────────────────
-
-export interface AutomasphersState {
-  dynamicActive: boolean;
-  cleanActive: boolean;
-  modifiedActive: boolean;
-  breathingLevel: number;
-  bassTriggered: boolean;
-}
-
-// ─── SRS State ────────────────────────────────────────────────────────────────
-
-export type SrsClarityGrade = "A+" | "B+" | "C+" | "D+";
-
-export interface SrsState {
-  active: boolean;
-  isActive: boolean;
-  hd90Active: boolean;
-  hdMonitorActive: boolean;
-  expansionFactor: number;
-  surroundActive: boolean;
-  clarityGrade: SrsClarityGrade;
-  clarity: SrsClarityGrade;
-  noiseFloor: number;
-  thdLevel: number;
-  autosphereActive: boolean;
-  smartChipActive: boolean;
-  leftLevel: number;
-  rightLevel: number;
-  clarityScore: number;
-  automaspherLevel: number;
-  sensorReading: {
-    bass: number;
-    mids: number;
-    highs: number;
-    tweeters: number;
-  };
-  soundProjectsOutside: boolean;
-  hd9: SrsHD9State;
-  automasphers: AutomasphersState;
-  naturalBottom: NaturalBottomState;
-}
-
-// ─── SRS Config ───────────────────────────────────────────────────────────────
-
-export interface SrsConfig {
-  hdEnabled: boolean;
-  automasphersEnabled: boolean;
-  smoothTweeters: boolean;
-  naturalBottom: boolean;
-  expansionFactor: number;
-}
-
-// ─── SRS Ohms Filter ──────────────────────────────────────────────────────────
-
-export type OhmCharacter = "2ohm" | "4ohm" | "blend";
-
-export interface SrsOhmsState {
-  active: boolean;
-  punchStrength: number;
-  presenceStrength: number;
-  responseSpeed: number;
-  ohmCharacter: OhmCharacter;
-}
-
-// ─── XM State ─────────────────────────────────────────────────────────────────
-// XM Processor deleted — XmState kept as minimal stub for backward-compat imports.
-
-export interface XmState {
-  staticLevel: number;
-  enabled: boolean;
-  slopeDB: 24;
-  snrDB: number;
-  thdPct: number;
-}
-
-// ─── Virtual Amp ──────────────────────────────────────────────────────────────
-
-export type AmpScreenId =
-  | "signal-chain"
-  | "power-bank"
-  | "volume-eq"
-  | "commander"
-  | "xm-connections"
-  | "bass-analyzer";
-
-export interface AmpScreen {
-  id: AmpScreenId;
-  label: string;
-  icon: string;
-}
-
-export interface AmpChannels {
-  bass: number;
-  mids: number;
-  highs: number;
-  tweeters: number;
-}
-
-export interface VirtualAmpState {
-  currentScreen: AmpScreenId;
-  isOpen: boolean;
-  volume: number;
-  eqBass: number;
-  eqMids: number;
-  eqHighs: number;
-  eqTweeters: number;
-  bassPreset: number;
-  earthquakeMode: boolean;
-  srsActive: boolean;
-  srsExpansion: number;
-  channels: AmpChannels;
-}
-
-// ─── Virtual Amp Power Supply ─────────────────────────────────────────────────
-
-export interface VirtualAmpPowerOutput {
-  display: string;
-  real: number;
-}
-
-export interface VirtualAmpPowerSupplyState {
-  sourceChannelOutput: number;
-  tweeters: VirtualAmpPowerOutput;
-  mids: VirtualAmpPowerOutput;
-  highs: VirtualAmpPowerOutput;
-  bass: VirtualAmpPowerOutput;
-  totalPowerSupply: number;
-}
-
-// ─── Engine 1 State ───────────────────────────────────────────────────────────
-
-export interface Engine1State {
-  channels: Array<{
-    id: number;
-    assignment: string;
-    output: number;
-    active: boolean;
-  }>;
-  safetySwitch: boolean;
-  fuseCount: number;
-  batteryLevel: number;
-  signalBoosterActive: boolean;
-  stabilizerActive: boolean;
-  commanderStrength: number;
-}
-
-// ─── Master Power State ───────────────────────────────────────────────────────
-
-export interface MasterPowerState {
-  masterPower: number;
-  powerLevel: number;
-  isActive: boolean;
-  strengthLabel: string;
-  gainMultiplier: number;
-  virtualPower: number;
-  realPower: number;
-  chargerActive: boolean;
-  batteriesCharged: boolean;
-  chargeLevel: number;
-  chargerStrength: string;
-}
-
-// ─── Cheater Beater ───────────────────────────────────────────────────────────
-
-export interface CheaterBeaterState {
-  enabled: boolean;
-  hz33Level: number;
-  mutuallyExclusiveWith14_60: boolean;
-}
-
-// ─── Atmosmasphere State ──────────────────────────────────────────────────────
-
-export interface AtmosChipStatus {
+export interface BassPreset {
   id: number;
   name: string;
-  shortName: string;
-  active: boolean;
+  bass: number;
+  lowMid: number;
+  vocals: number;
+  mid: number;
+  highMid: number;
+  treble: number;
 }
 
-export interface AtmosSensorData {
-  leftEnergy: number;
-  rightEnergy: number;
-  forwardEnergy: number;
-  spatialEnergy: number;
-  bassGrounded: boolean;
-}
+export const BASS_PRESETS: BassPreset[] = [
+  {
+    id: 1,
+    name: "Street Slam",
+    bass: 9,
+    lowMid: 8,
+    vocals: 2,
+    mid: 1,
+    highMid: 1,
+    treble: 0,
+  },
+  {
+    id: 2,
+    name: "Bass Head",
+    bass: 10,
+    lowMid: 9,
+    vocals: 1,
+    mid: 0,
+    highMid: 0,
+    treble: 0,
+  },
+  {
+    id: 3,
+    name: "Competition Hit",
+    bass: 10,
+    lowMid: 10,
+    vocals: 3,
+    mid: 2,
+    highMid: 1,
+    treble: 0,
+  },
+  {
+    id: 4,
+    name: "Trunk Rattler",
+    bass: 9,
+    lowMid: 10,
+    vocals: 2,
+    mid: 1,
+    highMid: 0,
+    treble: -1,
+  },
+  {
+    id: 5,
+    name: "Deep Punch",
+    bass: 8,
+    lowMid: 7,
+    vocals: 2,
+    mid: 2,
+    highMid: 2,
+    treble: 1,
+  },
+  {
+    id: 6,
+    name: "Club Boom",
+    bass: 8,
+    lowMid: 9,
+    vocals: 4,
+    mid: 3,
+    highMid: 2,
+    treble: 1,
+  },
+  {
+    id: 7,
+    name: "Hydraulic Drop",
+    bass: 10,
+    lowMid: 8,
+    vocals: 1,
+    mid: 0,
+    highMid: 0,
+    treble: -2,
+  },
+  {
+    id: 8,
+    name: "Iron Chest",
+    bass: 9,
+    lowMid: 10,
+    vocals: 2,
+    mid: 2,
+    highMid: 1,
+    treble: 0,
+  },
+  {
+    id: 9,
+    name: "Power Slam",
+    bass: 12,
+    lowMid: 10,
+    vocals: 3,
+    mid: 2,
+    highMid: 2,
+    treble: 1,
+  },
+  {
+    id: 10,
+    name: "Sub Foundation",
+    bass: 10,
+    lowMid: 8,
+    vocals: 2,
+    mid: 1,
+    highMid: 1,
+    treble: 2,
+  },
+];
 
-export interface AtmosState {
-  active: boolean;
-  chips: AtmosChipStatus[];
-  sensorData: AtmosSensorData;
-  strengthNumber: string;
-  commanderEmbedded: boolean;
-  powerSource: string;
-}
+export const CHANNEL_MAP: Array<{
+  ch: number;
+  label: string;
+  watts: string;
+  type: "system" | "software" | "reserved";
+}> = [
+  { ch: 1, label: "Bass Out", watts: "80,000W", type: "system" },
+  { ch: 2, label: "Mids Out", watts: "80,000W", type: "system" },
+  { ch: 3, label: "Highs Out", watts: "80,000W", type: "system" },
+  { ch: 4, label: "Tweeters Out", watts: "80,000W", type: "system" },
+  { ch: 5, label: "Power Source", watts: "80,000W", type: "system" },
+  { ch: 6, label: "Stabilizer", watts: "80,000W", type: "system" },
+  { ch: 7, label: "Signal Booster", watts: "80,000W", type: "system" },
+  { ch: 8, label: "Atmosmasphere", watts: "80,000W", type: "system" },
+  { ch: 9, label: "SRS HD 9.0", watts: "80,000W", type: "system" },
+  { ch: 10, label: "Smart Chip Bus", watts: "80,000W", type: "system" },
+  { ch: 11, label: "Epicenter", watts: "80,000W", type: "software" },
+  { ch: 12, label: "Freq Match Bass", watts: "80,000W", type: "software" },
+  { ch: 13, label: "Freq Match Highs", watts: "80,000W", type: "software" },
+  { ch: 14, label: "Multi-Hit 1", watts: "80,000W", type: "software" },
+  { ch: 15, label: "Multi-Hit 2", watts: "80,000W", type: "software" },
+  { ch: 16, label: "Multi-Hit 3", watts: "80,000W", type: "software" },
+  { ch: 17, label: "Multi-Hit 4", watts: "80,000W", type: "software" },
+  { ch: 18, label: "Bass Note Switch", watts: "80,000W", type: "software" },
+  { ch: 19, label: "Virtual Magnet", watts: "80,000W", type: "software" },
+  { ch: 20, label: "XM Processor", watts: "80,000W", type: "software" },
+];
 
-export interface AtmosphereConfig {
+export type ProtectionGrade = "A+" | "B+" | "C+" | "D+";
+
+export function getProtectionGrade(value: number): ProtectionGrade {
+  // Legacy types — kept for backward compatibility with old hooks/components
+
+  if (value >= 8) return "A+";
+  if (value >= 6) return "B+";
+  if (value >= 4) return "C+";
+  return "D+";
+}
+// ─── Legacy Types (compat) ────────────────────────────────────────────────────
+
+export interface AtmosmashereState {
   enabled: boolean;
-  chipCount: 30;
-  sensorCount: 30;
-  mode: "auto" | "vr";
-  vrEnabled: boolean;
-}
-
-// ─── Sound Beaming + VR Bubble ────────────────────────────────────────────────
-
-export interface SoundBeamingState {
-  enabled: boolean;
-  groupMode: boolean;
-  wallMapping: boolean;
   vrMode: boolean;
-  roomWidth: number;
-  roomHeight: number;
-  beamStrength: number;
-  vrDepth: number;
-  listenerCount: number;
-  bubblesActive: boolean;
+  chipStatuses: boolean[];
 }
 
-// ─── Startup Sequence ─────────────────────────────────────────────────────────
-
-export type StartupStageId =
-  | "batteries"
-  | "fuses"
-  | "amp"
-  | "features"
-  | "settings";
-
-export interface StartupPhase {
-  id: StartupStageId;
-  label: string;
-  icon: string;
-  duration: number;
+export interface SRSState {
+  enabled: boolean;
+  vrMode: boolean;
 }
 
-export interface StartupState {
-  phase: StartupStageId | "complete";
-  completed: StartupStageId[];
+export interface UltraCrystalState {
+  enabled: boolean;
+}
+
+export interface VirtualCPUState {
   active: boolean;
+  chipCount: number;
 }
 
-// ─── Analyzer Profile ─────────────────────────────────────────────────────────
-
-export interface AnalyzerProfile {
-  speakerName: string;
-  ohms: number;
-  watts: number;
-  fallbackOhms: number;
-  fallbackWatts: number;
-  frequencyRange: { min: number; max: number };
-  assignedAt: number;
-  unit?: number;
-  primaryOhms?: number;
-  primaryWatts?: number;
-  freqMin?: number;
-  freqMax?: number;
-  locked?: boolean;
-  brand?: string;
-  usingFallback?: boolean;
+export interface TitaniumWallState {
+  bassEnabled: boolean;
+  midsEnabled: boolean;
 }
 
-export interface AnalyzerTableEntry {
-  unit: number;
-  primaryOhms: number;
-  primaryWatts: number;
-  fallbackOhms: number;
-  fallbackWatts: number;
+export interface XMProcessorState {
+  enabled: boolean;
+  staticControl: number;
+  powerNumber: number;
 }
 
-export const ANALYZER_TABLE: AnalyzerProfile[] = [];
-
-// ─── 99.0 Fix Scanner ─────────────────────────────────────────────────────────
-
-export type ScanStage =
-  | "idle"
-  | "initializing"
-  | "system-check"
-  | "network-scan"
-  | "audio-engine"
-  | "deep-analysis"
-  | "help-prompted"
-  | "diagnostics"
-  | "compiling"
-  | "complete"
-  | "fix-panel";
-
-export interface ScanFix {
-  id: string;
-  label: string;
-  description: string;
-  selected: boolean;
-}
-
-export interface LogMessage {
-  id: string;
-  text: string;
+export interface WaveShapingState {
+  waveShaper: number;
+  limiter: number;
+  gainNode: number;
 }
 
 export interface ScannerState {
-  isOpen: boolean;
-  isScanning: boolean;
-  stage: ScanStage;
-  progress: number;
-  messages: LogMessage[];
-  showHelpPrompt: boolean;
-  showFixPanel: boolean;
-  selectedFixes: string[];
-  fixes: ScanFix[];
-}
-
-// ─── Separation Sections ──────────────────────────────────────────────────────
-
-export interface SeparationSection {
-  id: number;
-  name: string;
-  strength: string;
   active: boolean;
-  status: "ok" | "monitoring" | "correcting";
+  bassEnergy: number;
+  midEnergy: number;
+  highEnergy: number;
+  dominantFreq: number;
 }
-
-export interface HighAmpState {
-  active: boolean;
-  power: number;
-  channelStrength: number;
-  commanderActive: boolean;
-  separatorActive: boolean;
-  sections: SeparationSection[];
-  routedFeatures: string[];
-}
-
-// ─── Stacked Filters ──────────────────────────────────────────────────────────
-
-export interface StackedMidFilters {
-  presence: number;
-  body: number;
-  clarity: number;
-}
-
-export interface StackedHighFilters {
-  air: number;
-  detail: number;
-  brilliance: number;
-}
-
-export interface StackedFiltersState {
-  midFilters: StackedMidFilters;
-  highFilters: StackedHighFilters;
-  stackStrength: string;
-  commanderActive: boolean;
-}
-
-// ─── Rubber Cotton Engine ─────────────────────────────────────────────────────
-// RubberCottonState deleted — carbon fiber WaveShaper caused crash.
-
-export interface SeparationSectionsState {
-  sections: SeparationSection[];
-  totalSections: number;
-}
-
-// ─── Soul Mode ────────────────────────────────────────────────────────────────
 
 export interface SoulModeState {
   enabled: boolean;
-  /** 0-100% harmonic preservation strength */
-  harmonicPreservation: number;
-  bassChannelActive: boolean;
-  harmonicsPlayingThroughMids: boolean;
+  harmonicsActive: boolean;
+  bassPresent: boolean;
 }
 
-// ─── Epicenter ────────────────────────────────────────────────────────────────
+export interface SoundBeamingState {
+  enabled: boolean;
+  listeners: ListenerState[];
+  vrDepth: "Near" | "Mid" | "Far";
+}
+
+export interface ListenerState {
+  enabled: boolean;
+  pan: number;
+  label: string;
+}
+
+export interface CheaterBeaterState {
+  enabled: boolean;
+  depth: number;
+}
 
 export interface EpicenterState {
-  active: boolean;
-  /** 2-4 active smart chips */
-  chipsActive: number;
-  rangeHz: string;
-  detecting: boolean;
-  foundationHeld: boolean;
-  /** 0-9 index into bass profiles */
-  profileLocked: number;
+  enabled: boolean;
+  detectedFreq: number;
+  strength: number;
 }
 
-// ─── Frequency Profile ────────────────────────────────────────────────────────
+export interface FreqMatchingState {
+  enabled: boolean;
+  bassProfile: number;
+  highProfile: number;
+  bassLocked: boolean;
+  highLocked: boolean;
+}
 
-export interface FrequencyProfile {
+export interface MultiHitState {
+  enabled: boolean;
+  bassFreqs: number[];
+  midFreqs: number[];
+  highFreqs: number[];
+}
+
+export interface BassNoteSwitchState {
+  enabled: boolean;
+  currentBassNote: number;
+  currentProfile: string;
+}
+
+export interface EQuakeState {
+  enabled: boolean;
+  depth: number;
+}
+
+export interface FreqProfile {
   id: number;
   name: string;
-  range: string;
-  character: string;
-  active: boolean;
+  freqHz: number;
+  type: BiquadFilterType;
+  gain: number;
+  q?: number;
 }
 
-// ─── Frequency Matching ───────────────────────────────────────────────────────
+export const BASS_PROFILES: FreqProfile[] = [
+  { id: 0, name: "Pure Sub", freqHz: 17, type: "lowshelf", gain: 8 },
+  { id: 1, name: "Deep Earth", freqHz: 25, type: "peaking", gain: 6, q: 1.0 },
+  { id: 2, name: "Thump Core", freqHz: 40, type: "peaking", gain: 5, q: 1.2 },
+  { id: 3, name: "Punch Bass", freqHz: 65, type: "peaking", gain: 4, q: 1.5 },
+  { id: 4, name: "Mid Punch", freqHz: 100, type: "peaking", gain: 3, q: 1.5 },
+  { id: 5, name: "Heavy Chest", freqHz: 45, type: "peaking", gain: 6, q: 1.0 },
+  { id: 6, name: "Competition Slam", freqHz: 30, type: "lowshelf", gain: 8 },
+  { id: 7, name: "Street Bass", freqHz: 60, type: "peaking", gain: 5, q: 0.8 },
+  { id: 8, name: "Boom Box", freqHz: 80, type: "peaking", gain: 4, q: 1.2 },
+  { id: 9, name: "Full Deep Sweep", freqHz: 32, type: "lowshelf", gain: 7 },
+];
 
-export interface FrequencyMatchingState {
-  bassProfileIndex: number;
-  highProfileIndex: number;
-  autoSelect: boolean;
-  bassProfiles: FrequencyProfile[];
-  highProfiles: FrequencyProfile[];
+export const HIGH_PROFILES: FreqProfile[] = [
+  { id: 0, name: "Pure Air", freqHz: 12000, type: "highshelf", gain: 4 },
+  { id: 1, name: "Silk High", freqHz: 8000, type: "highshelf", gain: 3 },
+  { id: 2, name: "Crystal", freqHz: 10000, type: "highshelf", gain: 5 },
+  { id: 3, name: "Bright Air", freqHz: 6000, type: "highshelf", gain: 4 },
+  { id: 4, name: "Airy Shimmer", freqHz: 12000, type: "highshelf", gain: 6 },
+  { id: 5, name: "Presence", freqHz: 3500, type: "peaking", gain: 4, q: 1.0 },
+  { id: 6, name: "Sizzle", freqHz: 8000, type: "highshelf", gain: 7 },
+  {
+    id: 7,
+    name: "Warmth High",
+    freqHz: 6000,
+    type: "peaking",
+    gain: 3,
+    q: 0.8,
+  },
+  { id: 8, name: "Sparkle", freqHz: 10000, type: "highshelf", gain: 4 },
+  {
+    id: 9,
+    name: "Presence + Brilliance",
+    freqHz: 5000,
+    type: "highshelf",
+    gain: 5,
+  },
+];
+
+// ─── 4-Engine types ─────────────────────────────────────────────────────────
+
+export interface EngineStatus {
+  name: string;
+  engine: "bass" | "mids" | "highs" | "system";
+  status: "green" | "yellow" | "red";
+  detail: string;
+  powerWatts: number;
 }
 
-// ─── Multi-Frequency Hit System ───────────────────────────────────────────────
-
-export interface MultiFreqHitState {
-  /** 3-4 active dominant bass frequencies (Hz) */
-  bassFreqs: number[];
-  /** 3-4 active dominant mid frequencies (Hz) */
-  midFreqs: number[];
-  /** 3-4 active dominant high frequencies (Hz) */
-  highFreqs: number[];
-  switching: boolean;
+export interface DiagnosticResult {
+  node: string;
+  engine: string;
+  status: "pass" | "fail" | "warn";
+  direction: "forward" | "backward";
+  detail: string;
+  autoFixed?: boolean;
+  fixDescription?: string;
 }
 
-// ─── Bass Note Switching ──────────────────────────────────────────────────────
-
-export interface BassNoteSwitchingState {
-  enabled: boolean;
-  /** Current dominant bass note in Hz */
-  currentBassNote: number;
-  currentMidProfile: string;
-  currentHighProfile: string;
-  manualOverride: boolean;
-  lockedProfile: number | null;
+export interface TrackTestResult {
+  passed: boolean;
+  results: DiagnosticResult[];
+  autoFixedCount: number;
+  failedCount: number;
+  summary: string;
 }
 
-// ─── Titanium Wall ────────────────────────────────────────────────────────────
-
-export interface TitaniumWallState {
-  active: boolean;
-  /** Always 1000 */
-  powerRating: number;
-  /** Always 10 */
-  widthInches: number;
-  bassSide: {
-    bang: boolean;
-    boom: boolean;
-    bottom: boolean;
-    subFoundation: boolean;
-  };
-  midsSide: {
-    instrumentFocus: boolean;
-    isolationActive: boolean;
-  };
-  /** Always 6 — covers all 6 protection sliders */
-  protectionSlots: number;
-  channelPowered: boolean;
-}
-
-// ─── Zero Restriction Gain ────────────────────────────────────────────────────
-
-export interface ZeroRestrictionGainState {
-  active: boolean;
-  /** 0-100, default 80 — cleaning distortion strength, never adds distortion */
-  gainForDistortion: number;
-  /** 0-100, default 80 — cleaning clipping strength, never touches volume */
-  gainForClipping: number;
-  titaniumWallInside: boolean;
-  commanderConnected: boolean;
-  engineChannelPowered: boolean;
-}
-
-// ─── Virtual CPU ──────────────────────────────────────────────────────────────
-
-export interface VirtualCPUState {
-  /** 30-48 total smart chips managed */
-  totalChips: number;
-  /** 20-30 second window opened when bottleneck detected */
-  processingWindowSecs: number;
-  cleanSignal: boolean;
-  bottleneckDetected: boolean;
-  /** 0-100 current CPU load percent */
-  loadPercent: number;
-}
-
-// ─── WaveShaping Controls ─────────────────────────────────────────────────────
-
-export interface WaveShapingControlState {
-  /** 0-2, hard cap 2 */
-  waveShaperPercent: number;
-  /** 0-2, hard cap 2 */
-  limiterPercent: number;
-  /** 0-2, hard cap 2 */
-  gainNodePercent: number;
-}
-
-// ─── Battery Bank ─────────────────────────────────────────────────────────────
-
-export interface BatteryUnit {
-  id: number;
-  /** Always 100 — engine keeps batteries full */
-  chargeLevel: number;
-  /** 80000 / batteryCount */
-  wattsReceived: number;
-  active: boolean;
-}
-
-export interface BatteryBankState {
-  batteries: BatteryUnit[];
-  /** Channel 2 from Engine 1 */
-  channelSource: number;
-  /** Always 80000 — all batteries wired together */
-  combinedOutput: number;
-  allWiredTogether: boolean;
-}
-
-// ─── Combined Amps (convenience re-exports) ───────────────────────────────────
-
-export type {
-  CombinedAmpState,
-  CombinedAmpChannel,
-  CombinedProtectionState,
-  DigitalAmpState,
-  TubeAmpState,
-} from "@/hooks/useCombinedAmps";
-
-// ─── Engine 1 (re-exports for shared access) ──────────────────────────────────
-
-export type {
-  Engine1State as Engine1HookState,
-  Engine1Channel,
-  Engine1FuseConfig,
-  Engine1BatteryState,
-  VirtualAmpPowerSupply,
-  ChannelAssignment,
-} from "@/hooks/useEngine1";
+export const ATMOSMASPHERE_CHIPS = [
+  "Body Scanner",
+  "Room Mapper",
+  "Wall Mapper",
+  "Height Tracker",
+  "Bubble Builder",
+  "Beam Targeter",
+  "Group Mode Controller",
+  "VR Depth Zone 1",
+  "VR Depth Zone 2",
+  "Sound Thickness Monitor",
+  "Dead Spot Scanner",
+  "Listener Tracker 1",
+  "Listener Tracker 2",
+  "Listener Tracker 3",
+  "Listener Tracker 4",
+  "Phase Aligner",
+  "Spatial Renderer",
+  "Reverb Controller",
+  "Width Expander",
+  "Depth Processor",
+  "Center Lock",
+  "Sub Spatial",
+  "Height Layer 1",
+  "Height Layer 2",
+  "Beam Splitter",
+];

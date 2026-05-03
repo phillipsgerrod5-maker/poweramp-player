@@ -1,2 +1,1 @@
-// HumanFilterPanel — permanently removed
 export {};

@@ -1,4 +1,59 @@
 // Version: 1.0.0
+type CommanderEvent__217479783 =
+  {
+    action : Text;
+    autoFixed : Bool;
+    channel : Text;
+    eventType : Text;
+    feature : Text;
+    id : Nat;
+    previousValue : Text;
+    signalState : Text;
+    timestamp : Int;
+    value : Text
+  };
+type DiagnosticReport__789748203 =
+  {
+    channelStatuses : [(Text, Text)];
+    fixesApplied : [Text];
+    id : Nat;
+    overallHealth : Text;
+    problemsFound : [Text];
+    timestamp : Int
+  };
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type _DiagnosticEntry__279819459 =
+  {
+    channel : Text;
+    fix : Text;
+    id : Nat;
+    problem : Text;
+    resolved : Bool;
+    timestamp : Int
+  };
 actor {
-  
+  stable MAX_EVENTS : Nat;
+  stable var diagnosticLog :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?_DiagnosticEntry__279819459]];
+      var elementIndex : Nat__490723111
+    };
+  stable events :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CommanderEvent__217479783]];
+      var elementIndex : Nat__490723111
+    };
+  stable var lastScanTimestamp : Int;
+  stable var nextEventId : Nat;
+  stable var nextId : Nat;
+  stable var nextReportId : Nat;
+  stable reports :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?DiagnosticReport__789748203]];
+      var elementIndex : Nat__490723111
+    }
 };
