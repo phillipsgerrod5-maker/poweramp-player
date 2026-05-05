@@ -1,26 +1,30 @@
 {
-  "overview": "PowerAmp Player is a browser-based touchscreen virtual music player and advanced audio control system with a CarPlay-style grid interface. Features a Master Commander Unit, 4 fully isolated audio channels (Bass, Mids, Highs, Tweeters), 26+ feature tiles all truly wired to the audio chain, and a smart diagnostic system.",
+  "overview": "PowerAmp Player is a browser-based virtual music player and advanced audio control system built by Gerrod. It features a Kenwood head unit–style interface with a full audio chain: Memory Commander Chip (3,000 slots), unified BassAmp (Virtual+Digital+Analog+Tube), Virtual Power Converter (120,000W), 6-band EQ, full 6-layer bass system with Epicenter Micro Pro, channel-isolated signal routing, and 7 DIY Kit tiles for self-wired features.",
   "features": [
-    "Master Commander Unit with live diagnostics and 1000-item history",
-    "4 fully isolated audio channels — Bass (14-50Hz), Mids, Highs, Tweeters",
-    "Audio locked to app page only — chat page banned from any audio access",
-    "26+ feature tiles each with own dedicated audio nodes",
-    "True 12-layer power chain with Signal Booster, System Booster, Virtual Power Converter",
-    "New Protection System with 3 sliders — Distortion Clean, Clipping Control, Particle Breakdown",
-    "6-band EQ ±12dB fully isolated per band",
-    "99.0 Scanner — full diagnostic tool with auto-fix",
-    "Auto-save on every control touch",
-    "Shiny blue 1080p CarPlay-style grid UI"
+    "Memory Commander Chip with 3,000 memory slots and own dedicated page",
+    "Unified BassAmp (Virtual+Digital+Analog+Tube) with 8 ohm dummy load and Virtual RCA jacks",
+    "120,000W Virtual Power Converter powering the entire chain",
+    "6-band EQ as command layer (BASS, LOW MID, VOCALS, MID, HIGH MID, TREBLE)",
+    "6-layer bass system with Epicenter Micro Pro, Cheater Beater, E-Quake, Soul Mode",
+    "Protection system (3 sliders: Distortion Clean, Clipping Control, Particle Breakdown)",
+    "Mids and Highs isolated on browser layer with bass blocker fuses",
+    "Commander bass block gatekeeper and page-level chat block",
+    "7 DIY Kit tiles with auto-wiring (tap to confirm wire-in)",
+    "Universal Restore App Testing with auto-disconnect",
+    "Cinematic Credits/Story with voice narration and centered text",
+    "Kenwood-style head unit UI with blue+gold metallic theme"
   ],
   "category": "entertainment",
   "tags": [
     "music-player",
     "audio",
-    "virtual-amp",
-    "equalizer",
     "bass",
-    "audio-processing",
-    "car-audio"
+    "amplifier",
+    "equalizer",
+    "web-audio",
+    "kenwood",
+    "head-unit",
+    "sound-engineering"
   ],
-  "last_updated": "2026-05-03T02:09:24.821Z"
+  "last_updated": "2026-05-04T15:46:04.328Z"
 }

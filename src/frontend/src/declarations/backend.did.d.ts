@@ -10,6 +10,7 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface ChannelLight { 'status' : string, 'channel' : string }
 export interface CommanderEvent {
   'id' : bigint,
   'action' : string,
@@ -22,6 +23,12 @@ export interface CommanderEvent {
   'autoFixed' : boolean,
   'eventType' : string,
 }
+export interface CommanderSlot {
+  'lastWrite' : bigint,
+  'value' : number,
+  'slotId' : string,
+  'featureName' : string,
+}
 export interface DiagnosticReport {
   'id' : bigint,
   'problemsFound' : Array<string>,
@@ -30,9 +37,22 @@ export interface DiagnosticReport {
   'overallHealth' : string,
   'channelStatuses' : Array<[string, string]>,
 }
+export interface FullDiagnosticReport {
+  'nodeStatus' : Array<[string, string]>,
+  'powerChainStatus' : string,
+  'totalSlotsUsed' : bigint,
+  'timestamp' : bigint,
+  'audioContextState' : string,
+  'lastSaveTimestamp' : bigint,
+  'channelLights' : Array<ChannelLight>,
+}
 export interface _SERVICE {
   /**
-   * / Clears all event history (does not affect diagnostic reports).
+   * / Clears all Commander memory slots (clean cache).
+   */
+  'clearCommanderMemory' : ActorMethod<[], undefined>,
+  /**
+   * / Clears all event history (does not affect diagnostic reports or slots).
    */
   'clearHistory' : ActorMethod<[], undefined>,
   /**
@@ -40,9 +60,17 @@ export interface _SERVICE {
    */
   'getActiveProblems' : ActorMethod<[], Array<CommanderEvent>>,
   /**
+   * / Returns all stored Commander slots (up to 3,000), unordered.
+   */
+  'getCommanderState' : ActorMethod<[], Array<CommanderSlot>>,
+  /**
    * / Returns the most recent diagnostic reports, newest first.
    */
   'getDiagnosticReports' : ActorMethod<[bigint], Array<DiagnosticReport>>,
+  /**
+   * / Returns a full diagnostic snapshot of the Commander chip and power chain.
+   */
+  'getFullDiagnosticReport' : ActorMethod<[], FullDiagnosticReport>,
   /**
    * / Returns paginated history, newest first.
    * / offset=0 means start from the most recent event.
@@ -84,6 +112,11 @@ export interface _SERVICE {
     [string, string, string, string, string, string, string, boolean],
     bigint
   >,
+  /**
+   * / Save (or update) a Commander memory slot.
+   * / When the 3,001st unique slot is written the oldest slot is evicted.
+   */
+  'recordEvent' : ActorMethod<[string, string, number], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

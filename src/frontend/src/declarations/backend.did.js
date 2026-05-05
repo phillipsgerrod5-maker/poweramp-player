@@ -20,6 +20,12 @@ export const CommanderEvent = IDL.Record({
   'autoFixed' : IDL.Bool,
   'eventType' : IDL.Text,
 });
+export const CommanderSlot = IDL.Record({
+  'lastWrite' : IDL.Int,
+  'value' : IDL.Float64,
+  'slotId' : IDL.Text,
+  'featureName' : IDL.Text,
+});
 export const DiagnosticReport = IDL.Record({
   'id' : IDL.Nat,
   'problemsFound' : IDL.Vec(IDL.Text),
@@ -28,15 +34,31 @@ export const DiagnosticReport = IDL.Record({
   'overallHealth' : IDL.Text,
   'channelStatuses' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
 });
+export const ChannelLight = IDL.Record({
+  'status' : IDL.Text,
+  'channel' : IDL.Text,
+});
+export const FullDiagnosticReport = IDL.Record({
+  'nodeStatus' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+  'powerChainStatus' : IDL.Text,
+  'totalSlotsUsed' : IDL.Nat,
+  'timestamp' : IDL.Int,
+  'audioContextState' : IDL.Text,
+  'lastSaveTimestamp' : IDL.Int,
+  'channelLights' : IDL.Vec(ChannelLight),
+});
 
 export const idlService = IDL.Service({
+  'clearCommanderMemory' : IDL.Func([], [], []),
   'clearHistory' : IDL.Func([], [], []),
   'getActiveProblems' : IDL.Func([], [IDL.Vec(CommanderEvent)], ['query']),
+  'getCommanderState' : IDL.Func([], [IDL.Vec(CommanderSlot)], ['query']),
   'getDiagnosticReports' : IDL.Func(
       [IDL.Nat],
       [IDL.Vec(DiagnosticReport)],
       ['query'],
     ),
+  'getFullDiagnosticReport' : IDL.Func([], [FullDiagnosticReport], ['query']),
   'getHistory' : IDL.Func(
       [IDL.Nat, IDL.Nat],
       [IDL.Vec(CommanderEvent)],
@@ -93,6 +115,7 @@ export const idlService = IDL.Service({
       [IDL.Nat],
       [],
     ),
+  'recordEvent' : IDL.Func([IDL.Text, IDL.Text, IDL.Float64], [], []),
 });
 
 export const idlInitArgs = [];
@@ -110,6 +133,12 @@ export const idlFactory = ({ IDL }) => {
     'autoFixed' : IDL.Bool,
     'eventType' : IDL.Text,
   });
+  const CommanderSlot = IDL.Record({
+    'lastWrite' : IDL.Int,
+    'value' : IDL.Float64,
+    'slotId' : IDL.Text,
+    'featureName' : IDL.Text,
+  });
   const DiagnosticReport = IDL.Record({
     'id' : IDL.Nat,
     'problemsFound' : IDL.Vec(IDL.Text),
@@ -118,15 +147,31 @@ export const idlFactory = ({ IDL }) => {
     'overallHealth' : IDL.Text,
     'channelStatuses' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
   });
+  const ChannelLight = IDL.Record({
+    'status' : IDL.Text,
+    'channel' : IDL.Text,
+  });
+  const FullDiagnosticReport = IDL.Record({
+    'nodeStatus' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+    'powerChainStatus' : IDL.Text,
+    'totalSlotsUsed' : IDL.Nat,
+    'timestamp' : IDL.Int,
+    'audioContextState' : IDL.Text,
+    'lastSaveTimestamp' : IDL.Int,
+    'channelLights' : IDL.Vec(ChannelLight),
+  });
   
   return IDL.Service({
+    'clearCommanderMemory' : IDL.Func([], [], []),
     'clearHistory' : IDL.Func([], [], []),
     'getActiveProblems' : IDL.Func([], [IDL.Vec(CommanderEvent)], ['query']),
+    'getCommanderState' : IDL.Func([], [IDL.Vec(CommanderSlot)], ['query']),
     'getDiagnosticReports' : IDL.Func(
         [IDL.Nat],
         [IDL.Vec(DiagnosticReport)],
         ['query'],
       ),
+    'getFullDiagnosticReport' : IDL.Func([], [FullDiagnosticReport], ['query']),
     'getHistory' : IDL.Func(
         [IDL.Nat, IDL.Nat],
         [IDL.Vec(CommanderEvent)],
@@ -183,6 +228,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Nat],
         [],
       ),
+    'recordEvent' : IDL.Func([IDL.Text, IDL.Text, IDL.Float64], [], []),
   });
 };
 

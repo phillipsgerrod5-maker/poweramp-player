@@ -1,3 +1,4 @@
+import type { PowerAmpEngine } from "../audio/engine";
 // ═══════════════════════════════════════════════════
 // PowerAmp Player — Shared Types
 // ═══════════════════════════════════════════════════
@@ -354,7 +355,27 @@ export const HIGH_PROFILES: FreqProfile[] = [
   },
 ];
 
-// ─── 4-Engine types ─────────────────────────────────────────────────────────
+// ─── Memory Commander Chip types ─────────────────────────────────────────────
+
+export interface MemorySlot {
+  id: string;
+  name: string;
+  value: number | boolean | string | null;
+}
+
+export interface ChipStatus {
+  power: number;
+  virtualPower: number;
+  slotCount: number;
+  lastSaved: number;
+  isActive: boolean;
+}
+
+/** Props for the Memory Commander Chip panel UI component */
+export interface ChipPanelProps {
+  onClose: () => void;
+  engine: PowerAmpEngine;
+}
 
 export interface EngineStatus {
   name: string;

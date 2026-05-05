@@ -12,6 +12,10 @@ type CommanderEvent__217479783 =
     timestamp : Int;
     value : Text
   };
+type CommanderSlot__122265170 =
+  {featureName : Text; lastWrite : Int; slotId : Text; value : Float};
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
 type DiagnosticReport__789748203 =
   {
     channelStatuses : [(Text, Text)];
@@ -21,8 +25,13 @@ type DiagnosticReport__789748203 =
     problemsFound : [Text];
     timestamp : Int
   };
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
 type Nat__490723111 = Nat__920180692;
 type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
 type _DiagnosticEntry__279819459 =
   {
     channel : Text;
@@ -34,6 +43,7 @@ type _DiagnosticEntry__279819459 =
   };
 actor {
   stable MAX_EVENTS : Nat;
+  stable MAX_SLOTS : Nat;
   stable var diagnosticLog :
     {
       var blockIndex : Nat__490723111;
@@ -47,6 +57,7 @@ actor {
       var elementIndex : Nat__490723111
     };
   stable var lastScanTimestamp : Int;
+  stable var lastSlotWrite : Int;
   stable var nextEventId : Nat;
   stable var nextId : Nat;
   stable var nextReportId : Nat;
@@ -55,5 +66,16 @@ actor {
       var blockIndex : Nat__490723111;
       var blocks : [var [var ?DiagnosticReport__789748203]];
       var elementIndex : Nat__490723111
+    };
+  stable slotOrder :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Text]];
+      var elementIndex : Nat__490723111
+    };
+  stable slots :
+    {
+      var root : Node__46230540<Text, CommanderSlot__122265170>;
+      var size : Nat__490723111
     }
 };

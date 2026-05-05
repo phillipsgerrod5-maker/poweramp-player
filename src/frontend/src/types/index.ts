@@ -1,89 +1,72 @@
-// PowerAmp Player — shared TypeScript types
+export interface EngineStatus {
+  initialized: boolean;
+  isPlaying: boolean;
+  currentTrack: string | null;
+  audioContextState: string;
+  frontlineVolume: number;
+  masterGain: number;
+  bassLevel: number;
+  midsLevel: number;
+  highsLevel: number;
+  eqValues: {
+    bass: number;
+    lowMid: number;
+    vocals: number;
+    mid: number;
+    highMid: number;
+    treble: number;
+  };
+  commanderLights: CommanderLights;
+  thunderBatteryStable: boolean;
+  cheaterBeaterActive: boolean;
+  eQuakeActive: boolean;
+  epicenterLevel: number;
+  soulModeLevel: number;
+}
 
-export type PanelId =
+export interface CommanderLights {
+  audioCtx: boolean;
+  powerChain: boolean;
+  commander: boolean;
+  vpc120kw: boolean;
+  bassCh1: boolean;
+  bassCh2: boolean;
+  mids: boolean;
+  highs: boolean;
+}
+
+export type DrawerKey =
   | "bass"
-  | "mids"
-  | "highs"
-  | "tweeters"
   | "eq"
   | "protection"
+  | "bassamp"
+  | "mids"
+  | "highs"
+  | "cheaterBeater"
+  | "eQuake"
   | "epicenter"
-  | "cheaterbeater"
-  | "equake"
-  | "naturalbottom"
-  | "soulmode"
-  | "atmosmashere"
+  | "soulMode"
   | "srs"
-  | "xmprocessor"
-  | "soundbeaming"
-  | "virtualmagnet"
-  | "systembooster"
-  | "titaniumfuse"
-  | "commander"
-  | "scanner99"
-  | "mastergain"
-  | "trackTester"
-  | "classicalTrack"
-  | "bassSwitch"
-  | "epicenterAuto"
-  | "freqMatch"
+  | "xmProcessor"
   | "ultraCrystal"
-  | "audioBuffer"
-  | "chatBlock"
-  | "cache"
+  | "atmosmasphere"
+  | "soundBeaming"
+  | "virtualMagnet"
+  | "diyKit1"
+  | "diyKit2"
+  | "diyKit3"
+  | "diyKit4"
+  | "diyKit5"
+  | "diyKit6"
+  | "diyKit7"
+  | "universalRestore"
   | null;
 
-export interface ScanResult {
-  id: string;
-  label: string;
-  status: "ok" | "warn" | "error";
-  detail: string;
-}
-
-export interface CommanderLog {
-  ts: number;
-  msg: string;
-  level: "info" | "warn" | "error" | "fix";
-}
-
-export interface EngineState {
-  initialized: boolean;
-  playing: boolean;
-  trackName: string;
-  frontlineVol: number;
-  masterGainVal: number;
-  eqBass: number;
-  eqLowMid: number;
-  eqVocals: number;
-  eqMid: number;
-  eqHighMid: number;
-  eqTreble: number;
-  bassEnabled: boolean;
-  midsEnabled: boolean;
-  highsEnabled: boolean;
-  tweetersEnabled: boolean;
-  epicenterEnabled: boolean;
-  epicenterDepth: number;
-  cheaterBeaterEnabled: boolean;
-  cheaterBeaterDepth: number;
-  equakeDepth: number;
-  midBassEnabled: boolean;
-  midBassDepth: number;
-  soulModeEnabled: boolean;
-  soulModeDepth: number;
-  atmosEnabled: boolean;
-  atmosWet: number;
-  srsEnabled: boolean;
-  srsWet: number;
-  xmEnabled: boolean;
-  xmGain: number;
-  soundBeamEnabled: boolean;
-  beamIntensity: number;
-  virtualMagnetEnabled: boolean;
-  virtualMagnetDepth: number;
-  systemBoosterEnabled: boolean;
-  protectionEnabled: boolean;
-  distortionClean: number;
-  clippingControl: number;
-  particleBreakdown: number;
+export interface EQValues {
+  bass: number;
+  lowMid: number;
+  vocals: number;
+  mid: number;
+  highMid: number;
+  treble: number;
 }

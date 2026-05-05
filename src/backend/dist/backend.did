@@ -1,3 +1,16 @@
+type FullDiagnosticReport = 
+ record {
+   audioContextState: text;
+   channelLights: vec ChannelLight;
+   lastSaveTimestamp: int;
+   nodeStatus: vec record {
+                     text;
+                     text;
+                   };
+   powerChainStatus: text;
+   timestamp: int;
+   totalSlotsUsed: nat;
+ };
 type DiagnosticReport = 
  record {
    channelStatuses: vec record {
@@ -9,6 +22,13 @@ type DiagnosticReport =
    overallHealth: text;
    problemsFound: vec text;
    timestamp: int;
+ };
+type CommanderSlot = 
+ record {
+   featureName: text;
+   lastWrite: int;
+   slotId: text;
+   value: float64;
  };
 type CommanderEvent = 
  record {
@@ -23,13 +43,24 @@ type CommanderEvent =
    timestamp: int;
    value: text;
  };
+type ChannelLight = 
+ record {
+   channel: text;
+   status: text;
+ };
 service : {
-  /// Clears all event history (does not affect diagnostic reports).
+  /// Clears all Commander memory slots (clean cache).
+  clearCommanderMemory: () -> ();
+  /// Clears all event history (does not affect diagnostic reports or slots).
   clearHistory: () -> ();
   /// Returns all unresolved error events (eventType == "error" and not autoFixed).
   getActiveProblems: () -> (vec CommanderEvent) query;
+  /// Returns all stored Commander slots (up to 3,000), unordered.
+  getCommanderState: () -> (vec CommanderSlot) query;
   /// Returns the most recent diagnostic reports, newest first.
   getDiagnosticReports: (limit: nat) -> (vec DiagnosticReport) query;
+  /// Returns a full diagnostic snapshot of the Commander chip and power chain.
+  getFullDiagnosticReport: () -> (FullDiagnosticReport) query;
   /// Returns paginated history, newest first.
   /// offset=0 means start from the most recent event.
   getHistory: (limit: nat, offset: nat) -> (vec CommanderEvent) query;
@@ -62,4 +93,7 @@ service : {
   logEvent: (eventType: text, feature: text, channel: text, action: text,
    value: text, previousValue: text, signalState: text, autoFixed: bool) ->
    (nat);
+  /// Save (or update) a Commander memory slot.
+  /// When the 3,001st unique slot is written the oldest slot is evicted.
+  recordEvent: (slotId: text, featureName: text, value: float64) -> ();
 }

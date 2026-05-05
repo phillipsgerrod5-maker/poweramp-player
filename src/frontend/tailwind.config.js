@@ -66,6 +66,12 @@ export default {
           border: "oklch(var(--sidebar-border))",
           ring: "oklch(var(--sidebar-ring))",
         },
+        chip: {
+          bg: "oklch(0.19 0.08 262)",
+          glow: "oklch(0.82 0.16 195)",
+          accent: "oklch(0.85 0.18 195)",
+          border: "oklch(0.32 0.1 262)",
+        },
       },
       fontFamily: {
         display: ["var(--font-display)", "serif"],
@@ -86,6 +92,8 @@ export default {
         "glow-stabilizer": "0 0 20px rgba(153, 69, 255, 0.6), 0 0 40px rgba(153, 69, 255, 0.35), 0 0 60px rgba(100, 0, 200, 0.2)",
         "tile-default": "0 4px 16px rgba(0, 100, 255, 0.15), inset 0 1px 0 rgba(0, 150, 255, 0.2)",
         "tile-active": "0 0 20px rgba(0, 213, 255, 0.6), 0 0 40px rgba(0, 213, 255, 0.3), inset 0 1px 0 rgba(0, 150, 255, 0.4)",
+        "chip-dominant": "0 0 40px rgba(0, 230, 255, 0.8), 0 0 80px rgba(0, 200, 255, 0.5), inset 0 0 20px rgba(0, 230, 255, 0.3)",
+        "chip-pulse": "0 0 48px rgba(0, 230, 255, 0.7), 0 0 96px rgba(0, 180, 255, 0.4), inset 0 0 24px rgba(0, 230, 255, 0.25)",
       },
       keyframes: {
         "accordion-down": {
@@ -132,6 +140,16 @@ export default {
           "50%": { transform: "scale(0.98)", boxShadow: "0 2px 8px rgba(0, 100, 255, 0.15)" },
           "100%": { transform: "scale(1)", boxShadow: "0 0 20px rgba(0, 213, 255, 0.4)" },
         },
+        "chip-glow-pulse": {
+          "0%, 100%": {
+            opacity: "1",
+            boxShadow: "0 0 40px rgba(0, 230, 255, 0.8), 0 0 80px rgba(0, 200, 255, 0.5), inset 0 0 20px rgba(0, 230, 255, 0.3)",
+          },
+          "50%": {
+            opacity: "0.9",
+            boxShadow: "0 0 60px rgba(0, 230, 255, 0.95), 0 0 120px rgba(0, 200, 255, 0.65), inset 0 0 28px rgba(0, 230, 255, 0.4)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -143,6 +161,7 @@ export default {
         "startup": "startup-sequence 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards",
         "boot-flash": "boot-flash 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards",
         "tile-press": "tile-press 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        "chip-glow-pulse": "chip-glow-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
     },
   },

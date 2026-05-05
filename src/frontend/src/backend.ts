@@ -89,6 +89,27 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface ChannelLight {
+    status: string;
+    channel: string;
+}
+export interface FullDiagnosticReport {
+    nodeStatus: Array<[string, string]>;
+    powerChainStatus: string;
+    totalSlotsUsed: bigint;
+    timestamp: bigint;
+    audioContextState: string;
+    lastSaveTimestamp: bigint;
+    channelLights: Array<ChannelLight>;
+}
+export interface DiagnosticReport {
+    id: bigint;
+    problemsFound: Array<string>;
+    fixesApplied: Array<string>;
+    timestamp: bigint;
+    overallHealth: string;
+    channelStatuses: Array<[string, string]>;
+}
 export interface CommanderEvent {
     id: bigint;
     action: string;
@@ -101,17 +122,19 @@ export interface CommanderEvent {
     autoFixed: boolean;
     eventType: string;
 }
-export interface DiagnosticReport {
-    id: bigint;
-    problemsFound: Array<string>;
-    fixesApplied: Array<string>;
-    timestamp: bigint;
-    overallHealth: string;
-    channelStatuses: Array<[string, string]>;
+export interface CommanderSlot {
+    lastWrite: bigint;
+    value: number;
+    slotId: string;
+    featureName: string;
 }
 export interface backendInterface {
     /**
-     * / Clears all event history (does not affect diagnostic reports).
+     * / Clears all Commander memory slots (clean cache).
+     */
+    clearCommanderMemory(): Promise<void>;
+    /**
+     * / Clears all event history (does not affect diagnostic reports or slots).
      */
     clearHistory(): Promise<void>;
     /**
@@ -119,9 +142,17 @@ export interface backendInterface {
      */
     getActiveProblems(): Promise<Array<CommanderEvent>>;
     /**
+     * / Returns all stored Commander slots (up to 3,000), unordered.
+     */
+    getCommanderState(): Promise<Array<CommanderSlot>>;
+    /**
      * / Returns the most recent diagnostic reports, newest first.
      */
     getDiagnosticReports(limit: bigint): Promise<Array<DiagnosticReport>>;
+    /**
+     * / Returns a full diagnostic snapshot of the Commander chip and power chain.
+     */
+    getFullDiagnosticReport(): Promise<FullDiagnosticReport>;
     /**
      * / Returns paginated history, newest first.
      * / offset=0 means start from the most recent event.
@@ -154,10 +185,29 @@ export interface backendInterface {
      * / When the 1001st event is added the oldest is automatically dropped.
      */
     logEvent(eventType: string, feature: string, channel: string, action: string, value: string, previousValue: string, signalState: string, autoFixed: boolean): Promise<bigint>;
+    /**
+     * / Save (or update) a Commander memory slot.
+     * / When the 3,001st unique slot is written the oldest slot is evicted.
+     */
+    recordEvent(slotId: string, featureName: string, value: number): Promise<void>;
 }
 import type { DiagnosticReport as _DiagnosticReport } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
+    async clearCommanderMemory(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.clearCommanderMemory();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.clearCommanderMemory();
+            return result;
+        }
+    }
     async clearHistory(): Promise<void> {
         if (this.processError) {
             try {
@@ -186,6 +236,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getCommanderState(): Promise<Array<CommanderSlot>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCommanderState();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCommanderState();
+            return result;
+        }
+    }
     async getDiagnosticReports(arg0: bigint): Promise<Array<DiagnosticReport>> {
         if (this.processError) {
             try {
@@ -197,6 +261,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getDiagnosticReports(arg0);
+            return result;
+        }
+    }
+    async getFullDiagnosticReport(): Promise<FullDiagnosticReport> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getFullDiagnosticReport();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getFullDiagnosticReport();
             return result;
         }
     }
@@ -300,6 +378,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.logEvent(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+            return result;
+        }
+    }
+    async recordEvent(arg0: string, arg1: string, arg2: number): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.recordEvent(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.recordEvent(arg0, arg1, arg2);
             return result;
         }
     }
